@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import { useDispatch, useSelector } from "react-redux";
-import { closeModal } from "@/store/features/modalSlice";
-import { AppState } from "@/store/store";
-import { MessageSquareOff } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { closeModal } from '@/store/features/modalSlice';
+import { AppState } from '@/store/store';
+import { MessageSquareOff } from 'lucide-react';
+import { useDeleteChatRoomMutation } from '@/hooks/chatroom/useDeleteChatroomMutation';
 
 export default function DeleteChatRoomConfirm() {
   const dispatch = useDispatch();
-  const { mutate: deleteChatRoom } = useDeleteChatroomMutation();
+  const { mutate: deleteChatRoom } = useDeleteChatRoomMutation();
   const modalProps = useSelector((state: AppState) => state.modal.modalProps);
   const chatRoomId = modalProps?.chatRoomId;
 
@@ -58,7 +59,4 @@ export default function DeleteChatRoomConfirm() {
       </div>
     </div>
   );
-}
-function useDeleteChatroomMutation(): { mutate: any } {
-  throw new Error("Function not implemented.");
 }

@@ -53,11 +53,12 @@ export class ChatService {
       });
       if (existingRoom) {
         return {
+          chatroomId: existingRoom.id,
           success: true,
           message: 'Existing chat room found.',
         };
       }
-      await this.prisma.chatRoom.create({
+      const newChatroom = await this.prisma.chatRoom.create({
         data: {
           isGroup: false,
           users: {
@@ -67,6 +68,7 @@ export class ChatService {
         include: this.chatRoomsInclude,
       });
       return {
+        chatroomId: newChatroom.id,
         success: true,
         message: 'new chat room create',
       };
@@ -83,7 +85,7 @@ export class ChatService {
     data: GroupChatRoomCreateRequestType,
   ): Promise<ChatRoomResponseType> {
     try {
-      await this.prisma.chatRoom.create({
+      const newGroupChatroom = await this.prisma.chatRoom.create({
         data: {
           isGroup: true,
           name: data.name || `Group Chat ${Date.now().toString().slice(-7)}`,
@@ -96,6 +98,7 @@ export class ChatService {
         },
       });
       return {
+        chatroomId: newGroupChatroom.id,
         success: true,
         message: 'new group chat room created',
       };
@@ -185,10 +188,11 @@ export class ChatService {
     if (!isParticipant) {
       throw new NotFoundException('채팅방을 찾을 수 없습니다.');
     }
-    await this.prisma.chatRoom.delete({
+    const deletedChatroom = await this.prisma.chatRoom.delete({
       where: { id: roomId },
     });
     return {
+      chatroomId: deletedChatroom.id,
       success: true,
       message: 'chatRoom is successfully deleted.',
     };

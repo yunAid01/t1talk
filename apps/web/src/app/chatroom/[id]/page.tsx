@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
-import { useChat } from "@/hooks/useChat";
+import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/features/authSlice';
+import { useChat } from '@/hooks/chat/useChat';
 
 // api
-import { getChatRoomMessages } from "@/api/message";
-import { getUserChatRooms } from "@/api/chatroom";
+import { getChatRoomMessages } from '@/api/message';
+import { getUserChatRooms } from '@/api/chatroom';
 
 // components
-import ChatHeader from "@/components/Chat/ChatHeader";
-import MessageBubble from "@/components/Chat/MessageBubble";
-import MessageInput from "@/components/Chat/MessageInput";
-import EmptyChatState from "@/components/Chat/EmptyChatState";
-import TypingIndicator from "@/components/Chat/TypingIndicator";
-import { useSocket } from "@/contexts/SocketContext";
+import ChatHeader from '@/components/chat/ChatHeader';
+import MessageBubble from '@/components/chat/MessageBubble';
+import MessageInput from '@/components/chat/MessageInput';
+import EmptyChatState from '@/components/chat/EmptyChatState';
+import TypingIndicator from '@/components/chat/TypingIndicator';
+import { useSocket } from '@/contexts/SocketContext';
 
 // types
-import { MessageType } from "@repo/validation";
-import Loading from "@/components/Loding";
+import { MessageType } from '@repo/validation';
+import Loading from '@/components/common/Loding';
 
 export default function ChatRoom() {
   const params = useParams();
@@ -32,7 +32,7 @@ export default function ChatRoom() {
 
   // 채팅방 목록에서 현재 채팅방 정보 가져오기
   const { data: chatRooms } = useQuery({
-    queryKey: ["chatRooms"],
+    queryKey: ['chatRooms'],
     queryFn: getUserChatRooms,
   });
   const currentChatRoom = chatRooms?.find((room) => room.id === chatRoomId);
@@ -41,7 +41,7 @@ export default function ChatRoom() {
   const { data: initialMessages, isLoading: isLoadingMessages } = useQuery<
     MessageType[]
   >({
-    queryKey: ["messages", chatRoomId],
+    queryKey: ['messages', chatRoomId],
     queryFn: () => getChatRoomMessages(chatRoomId),
     initialData: [],
     enabled: !!chatRoomId,
@@ -52,6 +52,7 @@ export default function ChatRoom() {
     messages: socketMessages,
     typingUsers,
     isConnected,
+    deleteMessage,
     sendMessage,
     startTyping,
     stopTyping,
@@ -71,7 +72,7 @@ export default function ChatRoom() {
     const unreadMessages = initialMessages.filter(
       (msg) =>
         msg.senderId !== currentUser.id &&
-        !msg.readReceipts.some((r) => r.userId === currentUser.id)
+        !msg.readReceipts.some((r) => r.userId === currentUser.id),
     );
 
     // 각 메시지를 읽음 처리
@@ -82,15 +83,15 @@ export default function ChatRoom() {
 
   // 상대방 정보 (1:1 채팅인 경우)
   const otherUser = currentChatRoom?.users?.find(
-    (u) => u.user.id !== currentUser?.id
+    (u) => u.user.id !== currentUser?.id,
   )?.user;
 
   const chatRoomName = currentChatRoom?.isGroup
     ? currentChatRoom?.name || `Group (${currentChatRoom?.users?.length})`
-    : otherUser?.nickname || "Chat Room";
+    : otherUser?.nickname || 'Chat Room';
 
   const otherUserImage =
-    otherUser?.profileImageUrl || "/images/default-profileImage.jpg";
+    otherUser?.profileImageUrl || '/images/default-profileImage.jpg';
 
   // 메시지 전송
   const handleSendMessage = (content: string) => {
@@ -99,7 +100,7 @@ export default function ChatRoom() {
 
   // 자동 스크롤 (새 메시지 수신 시)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [allMessages]);
 
   // 로딩 상태
@@ -129,6 +130,7 @@ export default function ChatRoom() {
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {allMessages.map((msg) => (
             <MessageBubble
+              deleteMessage={deleteMessage}
               key={msg.id}
               message={{
                 ...msg,

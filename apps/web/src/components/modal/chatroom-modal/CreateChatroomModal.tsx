@@ -1,26 +1,25 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { findFriends } from "@/api/friend";
-import { MyFriendsResponseType } from "@repo/validation";
-import Image from "next/image";
-import { MessageSquarePlus, Users, Search } from "lucide-react";
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { findFriends } from '@/api/friend';
+import { MyFriendsResponseType } from '@repo/validation';
+import Image from 'next/image';
+import { MessageSquarePlus, Users, Search } from 'lucide-react';
 
 // hooks
-import { useCreateChatRoomMutation } from "@/hooks/conversation/useCreateChatroomMutation";
-import { useCreateGroupChatRoomMutation } from "@/hooks/conversation/useCreateChatroomMutation";
+import { useCreateChatRoomMutation, useCreateGroupChatRoomMutation } from '@/hooks/chatroom/useCreateChatroomMutation';
 
 export default function CreateChatroomModal() {
   const { mutate: createChatRoomMutate } = useCreateChatRoomMutation();
   const { mutate: createGroupChatRoomMutate } =
     useCreateGroupChatRoomMutation();
   const [selectedFriends, setSelectedFriends] = useState<number[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [groupName, setGroupName] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [groupName, setGroupName] = useState('');
 
   const { data: friends, isLoading } = useQuery<MyFriendsResponseType>({
-    queryKey: ["myFriends"],
+    queryKey: ['myFriends'],
     queryFn: findFriends,
   });
 
@@ -28,12 +27,12 @@ export default function CreateChatroomModal() {
     setSelectedFriends((prev) =>
       prev.includes(friendId)
         ? prev.filter((id) => id !== friendId)
-        : [...prev, friendId]
+        : [...prev, friendId],
     );
   };
 
   const filteredFriends = friends?.filter((f) =>
-    f.friend.nickname.toLowerCase().includes(searchTerm.toLowerCase())
+    f.friend.nickname.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleCreate = () => {
@@ -45,8 +44,8 @@ export default function CreateChatroomModal() {
     } else if (selectedFriends.length === 1) {
       createChatRoomMutate(selectedFriends[0]!); // 1:1
     }
-    console.log("Creating chat with:", selectedFriends);
-    console.log("Group name:", groupName);
+    console.log('Creating chat with:', selectedFriends);
+    console.log('Group name:', groupName);
   };
 
   return (
@@ -108,7 +107,7 @@ export default function CreateChatroomModal() {
               <Users size={16} />
               <span className="font-semibold">
                 {selectedFriends.length} friend
-                {selectedFriends.length > 1 ? "s" : ""} selected
+                {selectedFriends.length > 1 ? 's' : ''} selected
               </span>
             </div>
           </div>
@@ -129,8 +128,8 @@ export default function CreateChatroomModal() {
                   onClick={() => toggleFriend(f.friend.id)}
                   className={`flex items-center p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                     isSelected
-                      ? "bg-red-900/30 border-2 border-red-700/50"
-                      : "bg-gray-800/30 border-2 border-transparent hover:border-gray-700"
+                      ? 'bg-red-900/30 border-2 border-red-700/50'
+                      : 'bg-gray-800/30 border-2 border-transparent hover:border-gray-700'
                   }`}
                 >
                   {/* 프로필 이미지 */}
@@ -138,7 +137,7 @@ export default function CreateChatroomModal() {
                     <Image
                       src={
                         f.friend.profileImageUrl ||
-                        "/images/default-profileImage.jpg"
+                        '/images/default-profileImage.jpg'
                       }
                       alt={f.friend.nickname}
                       fill
@@ -163,8 +162,8 @@ export default function CreateChatroomModal() {
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
                       isSelected
-                        ? "bg-red-600 border-red-600"
-                        : "border-gray-600"
+                        ? 'bg-red-600 border-red-600'
+                        : 'border-gray-600'
                     }`}
                   >
                     {isSelected && (
@@ -189,7 +188,7 @@ export default function CreateChatroomModal() {
             })
           ) : (
             <div className="text-center py-8 text-gray-500">
-              {searchTerm ? "No friends found" : "No friends available"}
+              {searchTerm ? 'No friends found' : 'No friends available'}
             </div>
           )}
         </div>
@@ -204,7 +203,7 @@ export default function CreateChatroomModal() {
             <MessageSquarePlus size={20} />
             <span>
               CREATE CHAT
-              {selectedFriends.length > 1 ? " GROUP" : ""}
+              {selectedFriends.length > 1 ? ' GROUP' : ''}
             </span>
           </button>
         </div>

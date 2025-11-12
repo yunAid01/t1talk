@@ -1,6 +1,6 @@
 'use client';
 // hooks
-import { useRegisterMutation } from '@/hooks/useRegisterMutation';
+import { useRegisterMutation } from '@/hooks/auth/useRegisterMutation';
 
 // react-hook-form
 import { useForm } from 'react-hook-form';

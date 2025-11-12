@@ -1,25 +1,25 @@
-"use client";
-import UserCard from "@/components/Card/UserCard";
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+'use client';
+import UserCard from '@/components/user/UserCard';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 //api
-import { findFriends } from "@/api/friend";
+import { findFriends } from '@/api/friend';
 
 // redux
-import { useDispatch } from "react-redux";
-import { openModal } from "@/store/features/modalSlice";
-import { MyFriendsResponseType } from "@repo/validation";
-import Loading from "@/components/Loding";
-import Error from "@/components/Error";
+import { useDispatch } from 'react-redux';
+import { openModal } from '@/store/features/modalSlice';
+import { MyFriendsResponseType } from '@repo/validation';
+import Loading from '@/components/common/Loding';
+import Error from '@/components/common/Error';
 
 export default function Home() {
   const dispatch = useDispatch();
   const router = useRouter();
   useEffect(() => {
-    if (!localStorage.getItem("access_token")) {
-      router.push("/login");
+    if (!localStorage.getItem('access_token')) {
+      router.push('/login');
     }
   }, []);
 
@@ -29,13 +29,13 @@ export default function Home() {
     isError,
     error,
   } = useQuery<MyFriendsResponseType>({
-    queryKey: ["myFriends"],
+    queryKey: ['myFriends'],
     queryFn: () => findFriends(),
     initialData: [],
   });
 
   const handleOpenFindUserModal = () => {
-    dispatch(openModal({ modalType: "USER_FIND" }));
+    dispatch(openModal({ modalType: 'USER_FIND' }));
   };
 
   if (isLoading) {

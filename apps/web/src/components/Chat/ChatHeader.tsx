@@ -1,11 +1,11 @@
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, MoreVertical, Phone, Video } from "lucide-react";
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, MoreVertical, Phone, Video } from 'lucide-react';
 
 // redux
-import { openModal } from "@/store/features/modalSlice";
-import { useDispatch } from "react-redux";
-import OnlineIndicator from "../OnlineIndicator";
+import { openModal } from '@/store/features/modalSlice';
+import { useDispatch } from 'react-redux';
+import OnlineIndicator from '../common/OnlineIndicator';
 
 interface ChatHeaderProps {
   otherUserId: number;
@@ -28,7 +28,7 @@ export default function ChatHeader({
       <div className="flex items-center gap-4">
         {/* 뒤로가기 버튼 */}
         <button
-          onClick={() => router.push("/conversations")}
+          onClick={() => router.push('/conversations')}
           className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group"
         >
           <ArrowLeft
@@ -45,9 +45,9 @@ export default function ChatHeader({
               onClick={() =>
                 dispatch(
                   openModal({
-                    modalType: "USER_DETAIL",
+                    modalType: 'USER_DETAIL',
                     modalProps: { userId: otherUserId },
-                  })
+                  }),
                 )
               }
               src={otherUserImage}
@@ -65,7 +65,7 @@ export default function ChatHeader({
         <div>
           <h1 className="text-lg font-bold text-white">{chatRoomName}</h1>
           <p className="text-sm text-gray-500">
-            {isUserOnline ? "Online" : "Offline"}
+            {isUserOnline ? 'Online' : 'Offline'}
           </p>
         </div>
       </div>

@@ -1,23 +1,23 @@
-"use client";
-import { useQuery } from "@tanstack/react-query";
-import { getUserChatRooms } from "@/api/chatroom";
+'use client';
+import { useQuery } from '@tanstack/react-query';
+import { getUserChatRooms } from '@/api/chatroom';
 import {
   ChatRoomsListResponseType,
   MyFriendsResponseType,
-} from "@repo/validation";
+} from '@repo/validation';
 
 // components
-import ConversationPageEmptyState from "@/components/Conversation/ConversationPageEmptyState";
-import ConversationPageHeader from "@/components/Conversation/ConversationPageHeader";
-import ConversationPageCard from "@/components/Conversation/ConversationPageCard";
-import Loading from "@/components/Loding";
-import Error from "@/components/Error";
+import ChatRoomPageEmptyState from '@/components/chatroom/ChatroomPageEmptyState';
+import ChatRoomPageHeader from '@/components/chatroom/ChatroomPageHeader';
+import ChatRoomPageCard from '@/components/chatroom/ChatroomPageCard';
+import Loading from '@/components/common/Loding';
+import Error from '@/components/common/Error';
 
 //redux
-import { useDispatch, useSelector } from "react-redux";
-import { openModal } from "@/store/features/modalSlice";
-import { findFriends } from "@/api/friend";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { openModal } from '@/store/features/modalSlice';
+import { findFriends } from '@/api/friend';
+import { selectCurrentUser } from '@/store/features/authSlice';
 
 export default function ConversationsPage() {
   const dispatch = useDispatch();
@@ -30,7 +30,7 @@ export default function ConversationsPage() {
     isError: isErrorConversationRooms,
     error: errorConversationRooms,
   } = useQuery<ChatRoomsListResponseType>({
-    queryKey: ["conversationRooms"],
+    queryKey: ['chatRooms'],
     queryFn: () => getUserChatRooms(),
     initialData: [],
   });
@@ -42,7 +42,7 @@ export default function ConversationsPage() {
     isError: isErrorFriends,
     error: errorFriends,
   } = useQuery<MyFriendsResponseType>({
-    queryKey: ["myFriends"], // cash 이용하기
+    queryKey: ['myFriends'], // cash 이용하기
     queryFn: () => findFriends(),
     initialData: [],
   });
@@ -53,7 +53,7 @@ export default function ConversationsPage() {
   };
 
   const handleOpenCreateChatroomModal = () => {
-    dispatch(openModal({ modalType: "CREATE_CHATROOM" }));
+    dispatch(openModal({ modalType: 'CREATE_CHATROOM' }));
   };
 
   if (isLoadingConversationRooms || isLoadingFriends) {
@@ -81,32 +81,32 @@ export default function ConversationsPage() {
   return (
     <div className="h-full bg-gradient-to-br from-gray-900 via-black to-gray-900">
       {/* 헤더 */}
-      <ConversationPageHeader openModal={handleOpenCreateChatroomModal} />
+      <ChatRoomPageHeader openModal={handleOpenCreateChatroomModal} />
       {/* 채팅방 목록 */}
       <div className="px-6 py-6">
         {conversationRooms && conversationRooms.length > 0 ? (
           <div className="max-w-2xl min-w-[320px] mx-auto space-y-3">
             {conversationRooms.map((room) => {
               const otherUsers = room.users.filter(
-                (u) => u.id !== currentUser?.id
+                (u) => u.id !== currentUser?.id,
               );
               const areAllMyFriends = otherUsers.every((u) =>
-                isMyFriends(u.id)
+                isMyFriends(u.id),
               );
               if (otherUsers.length === 1 && otherUsers[0]) {
                 return (
-                  <ConversationPageCard
+                  <ChatRoomPageCard
                     key={room.id}
-                    conversationRoom={room}
+                    chatroom={room}
                     otherUser={otherUsers[0]}
                     isFriend={areAllMyFriends}
                   />
                 );
               } else if (otherUsers.length > 1) {
                 return (
-                  <ConversationPageCard
+                  <ChatRoomPageCard
                     key={room.id}
-                    conversationRoom={room}
+                    chatroom={room}
                     otherUsers={otherUsers}
                     isFriend={areAllMyFriends}
                   />
@@ -115,7 +115,7 @@ export default function ConversationsPage() {
             })}
           </div>
         ) : (
-          <ConversationPageEmptyState />
+          <ChatRoomPageEmptyState />
         )}
       </div>
     </div>

@@ -34,6 +34,21 @@ export class FriendController {
     return this.friendService.createFriend(userId, +friendId);
   }
 
+  @Patch(':id/favorite')
+  toggleFavorite(
+    @User() user: AuthenticatedUser,
+    @Param('id') friendId: string,
+  ) {
+    const userId = user.id;
+    return this.friendService.toggleFavorite(userId, +friendId);
+  }
+
+  @Patch(':id/block')
+  toggleBlock(@User() user: AuthenticatedUser, @Param('id') friendId: string) {
+    const userId = user.id;
+    return this.friendService.toggleBlock(userId, +friendId);
+  }
+
   @ZodResponse({ type: MyFriendsResponseDto })
   @Get('my')
   findMyFriends(@User() user: AuthenticatedUser) {

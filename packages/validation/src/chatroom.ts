@@ -16,6 +16,7 @@ export const GroupChatRoomCreateRequestSchema = z.object({
 
 /** 채팅방 생성 & 삭제 응답*/
 export const ChatRoomResponseSchema = z.object({
+  chatroomId: z.number(),
   success: z.boolean(),
   message: z.string(),
 });

@@ -1,35 +1,35 @@
-"use client";
+'use client';
 
-import { Users, MessageSquare, Settings, LogOutIcon } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
+import { Users, MessageSquare, Settings, LogOutIcon } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 //redux
-import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@/store/store";
-import { selectCurrentUser } from "@/store/features/authSlice";
-import { openModal } from "@/store/features/modalSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '@/store/store';
+import { selectCurrentUser } from '@/store/features/authSlice';
+import { openModal } from '@/store/features/modalSlice';
 
 export default function NavBar() {
   const dispatch = useDispatch();
   const currentUser = useSelector((state: AppState) =>
-    selectCurrentUser(state)
+    selectCurrentUser(state),
   );
 
   const handleMyProfileOpen = () => {
     dispatch(
       openModal({
-        modalType: "USER_DETAIL",
+        modalType: 'USER_DETAIL',
         modalProps: { userId: currentUser?.id },
-      })
+      }),
     );
   };
 
   const handleLogout = () => {
     dispatch(
       openModal({
-        modalType: "LOGOUT_CONFIRM",
-      })
+        modalType: 'LOGOUT_CONFIRM',
+      }),
     );
   };
 
@@ -69,14 +69,14 @@ export default function NavBar() {
         </Link>
 
         {/* 채팅 아이콘 */}
-        <Link href={"/conversations"}>
+        <Link href={'/chatroom'}>
           <button className="text-gray-400 hover:text-white">
             <MessageSquare size={28} />
           </button>
         </Link>
 
         {/* 설정 아이콘 */}
-        <Link href={"/config"}>
+        <Link href={'/config'}>
           <button className="text-gray-400 hover:text-white">
             <Settings size={28} />
           </button>

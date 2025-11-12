@@ -1,6 +1,6 @@
-"use client";
-import LoginForm from "@/components/forms/LoginForm";
-import Link from "next/link";
+'use client';
+import LoginForm from '@/components/form/LoginForm';
+import Link from 'next/link';
 
 export default function LoginPage() {
   return (
@@ -30,7 +30,7 @@ export default function LoginPage() {
           {/* 하단 링크 */}
           <div className="border-t border-gray-800 px-8 py-6 bg-gray-900/50">
             <p className="text-center text-gray-400 text-sm">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Link
                 href="/register"
                 className="text-red-500 hover:text-red-400 font-semibold transition-colors duration-200"

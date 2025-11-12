@@ -1,19 +1,20 @@
-"use client";
+'use client';
 
-import { MessageType } from "@repo/validation";
-import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { MessageType } from '@repo/validation';
+import Image from 'next/image';
+import { Trash2 } from 'lucide-react';
 
 // mutation
-import { useDispatch } from "react-redux";
-import { openModal } from "@/store/features/modalSlice";
-import { useDeleteMessageMutation } from "@/hooks/message/useDeleteMessageMutation";
+import { useDispatch } from 'react-redux';
+import { openModal } from '@/store/features/modalSlice';
 
 interface MessageBubbleProps {
+  deleteMessage: (messageId: number) => void;
   message: MessageType & { isMe: boolean };
   isGroup: boolean;
 }
 export default function MessageBubble({
+  deleteMessage,
   message,
   isGroup,
 }: MessageBubbleProps) {
@@ -22,16 +23,16 @@ export default function MessageBubble({
   const handleOpenDeleteMessageModal = () => {
     dispatch(
       openModal({
-        modalType: "MESSAGE_DELETE",
-        modalProps: { messageId: message.id, chatRoomId: message.chatRoomId },
-      })
+        modalType: 'MESSAGE_DELETE',
+        modalProps: { deleteMessage, messageId: message.id },
+      }),
     );
   };
 
   return (
-    <div className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${message.isMe ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`flex gap-3 max-w-[70%] ${message.isMe ? "flex-row-reverse" : "flex-row"}`}
+        className={`flex gap-3 max-w-[70%] ${message.isMe ? 'flex-row-reverse' : 'flex-row'}`}
       >
         {/* 프로필 이미지 (상대방만) */}
         {!message.isMe && (
@@ -39,7 +40,7 @@ export default function MessageBubble({
             <Image
               src={
                 message.sender.profileImageUrl ||
-                "/images/default-profileImage.jpg"
+                '/images/default-profileImage.jpg'
               }
               alt={message.sender.nickname}
               fill
@@ -51,7 +52,7 @@ export default function MessageBubble({
 
         {/* 메시지 버블 */}
         <div
-          className={`flex flex-col ${message.isMe ? "items-end" : "items-start"}`}
+          className={`flex flex-col ${message.isMe ? 'items-end' : 'items-start'}`}
         >
           {/* 보낸 사람 이름 (그룹챗 & 상대방만) */}
           {!message.isMe && isGroup && (
@@ -64,8 +65,8 @@ export default function MessageBubble({
           <div
             className={`px-4 py-2.5 rounded-2xl relative group ${
               message.isMe
-                ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/30"
-                : "bg-gray-800/80 text-white border border-gray-700"
+                ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-900/30'
+                : 'bg-gray-800/80 text-white border border-gray-700'
             }`}
           >
             <p className="text-sm whitespace-pre-wrap break-words">
@@ -91,9 +92,9 @@ export default function MessageBubble({
 
           {/* 시간 */}
           <span className="text-xs text-gray-600 mt-1 px-2">
-            {new Date(message.createdAt).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
+            {new Date(message.createdAt).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
             })}
           </span>
         </div>

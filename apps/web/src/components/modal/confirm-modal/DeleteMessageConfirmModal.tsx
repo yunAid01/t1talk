@@ -1,20 +1,18 @@
-"use client";
+'use client';
 
-import { useDispatch, useSelector } from "react-redux";
-import { closeModal } from "@/store/features/modalSlice";
-import type { AppState } from "@/store/store";
-import { AlertTriangle } from "lucide-react";
-import { useDeleteMessageMutation } from "@/hooks/message/useDeleteMessageMutation";
+import { useDispatch, useSelector } from 'react-redux';
+import { closeModal } from '@/store/features/modalSlice';
+import type { AppState } from '@/store/store';
+import { AlertTriangle } from 'lucide-react';
 
 export default function DeleteMessageConfirmModal() {
   const dispatch = useDispatch();
   const modalProps = useSelector((state: AppState) => state.modal.modalProps);
   const messageId = modalProps?.messageId;
-  const chatRoomId = modalProps?.chatRoomId;
-  const { mutate: deleteMessage } = useDeleteMessageMutation(chatRoomId);
+  const deleteMessage = modalProps?.deleteMessage;
 
   const handleConfirm = () => {
-    deleteMessage(messageId);
+    deleteMessage?.(messageId);
     dispatch(closeModal());
   };
 

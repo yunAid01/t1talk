@@ -1,87 +1,100 @@
-import Image from "next/image";
-import Link from "next/link";
-import { AlertCircle, LogOut } from "lucide-react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { AlertCircle, LogOut } from 'lucide-react';
 
 // types
-type ChatRoomItemType = {
+interface ChatRoom {
   id: number;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   name: string | null;
   isGroup: boolean;
   imageUrl: string | null;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  users: ChatRoomUserType[];
+  users: {
+    id: number;
+    user: {
+      nickname: string;
+      id: number;
+      statusMessage: string | null;
+      profileImageUrl: string | null;
+    };
+    userId: number;
+    chatRoomId: number;
+    isAdmin: boolean;
+    joinedAt: string | Date;
+    leftAt: string | Date | null;
+    notificationOn: boolean;
+  }[];
   lastMessage: string | null;
   lastMessageAt: string | Date | null;
   unreadCount: number;
-};
-
-type ChatRoomUserType = {
+}
+interface OtherUser {
   id: number;
+  user: {
+    nickname: string;
+    id: number;
+    statusMessage: string | null;
+    profileImageUrl: string | null;
+  };
   userId: number;
   chatRoomId: number;
   isAdmin: boolean;
   joinedAt: string | Date;
   leftAt: string | Date | null;
   notificationOn: boolean;
-  user: {
-    id: number;
-    nickname: string;
-    profileImageUrl: string | null;
-    statusMessage: string | null;
-  };
-};
+}
 
 // redux
-import { useDispatch } from "react-redux";
-import { openModal } from "@/store/features/modalSlice";
+import { useDispatch } from 'react-redux';
+import { openModal } from '@/store/features/modalSlice';
 
-interface ConversationPageCardProps {
+interface ChatRoomPageCardProps {
   isFriend: boolean;
-  otherUsers?: ChatRoomUserType[];
-  otherUser?: ChatRoomUserType;
-  conversationRoom: ChatRoomItemType;
+  otherUsers?: OtherUser[];
+  otherUser?: OtherUser;
+  chatroom: ChatRoom;
 }
-export default function ConversationPageCard({
+export default function ChatRoomPageCard({
   isFriend,
   otherUser,
   otherUsers,
-  conversationRoom,
-}: ConversationPageCardProps) {
+  chatroom,
+}: ChatRoomPageCardProps) {
   const dispatch = useDispatch();
 
-  const displayName = conversationRoom.isGroup
-    ? `##GroupChat #${conversationRoom.name}` ||
-      `##GroupChat #(${conversationRoom.users.length})`
-    : `##Chat #${otherUser?.user.nickname || "Unknown"}`;
+  const displayName = chatroom.isGroup
+    ? `##GroupChat #${chatroom.name}` ||
+      `##GroupChat #(${chatroom.users.length})`
+    : `##Chat #${otherUser?.user.nickname || 'Unknown'}`;
 
-  const displayImage = conversationRoom.isGroup
-    ? "/images/default-chatImage.jpg"
-    : otherUser?.user.profileImageUrl || "/images/default-chatImage.jpg";
+  const displayImage = chatroom.isGroup
+    ? '/images/default-chatImage.jpg'
+    : otherUser?.user.profileImageUrl || '/images/default-chatImage.jpg';
 
-  const lastMessageText = conversationRoom.lastMessage || "No messages yet";
-  const lastMessageTime = conversationRoom.lastMessageAt
-    ? new Date(conversationRoom.lastMessageAt).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
+  const lastMessageText = chatroom.lastMessage || 'No messages yet';
+  const lastMessageTime = chatroom.lastMessageAt
+    ? new Date(chatroom.lastMessageAt).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
       })
-    : "";
+    : '';
 
-  const unreadCount = conversationRoom.unreadCount || 0;
+  const unreadCount = chatroom.unreadCount || 0;
 
   const handleDeleteChatRoom = (e: React.MouseEvent) => {
     e.preventDefault(); // Link 이동 방지
     e.stopPropagation();
     dispatch(
       openModal({
-        modalType: "CHATROOM_DELETE",
-        modalProps: { chatRoomId: conversationRoom.id },
-      })
+        modalType: 'CHATROOM_DELETE',
+        modalProps: { chatRoomId: chatroom.id },
+      }),
     );
   };
 
   return (
-    <Link href={`/conversations/${conversationRoom.id}`}>
+    <Link href={`/chatroom/${chatroom.id}`}>
       <div className="group relative bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 hover:border-red-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-900/20 cursor-pointer">
         {/* 왼쪽 레드 라인 액센트 */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -109,7 +122,7 @@ export default function ConversationPageCard({
             <div className="flex items-center justify-between mb-0.5">
               <h3 className="text-sm font-bold text-white group-hover:text-red-500 truncate transition-colors duration-200">
                 {displayName}
-                {!isFriend && !conversationRoom.isGroup && (
+                {!isFriend && (
                   <span className="ml-2 text-xs text-gray-500">
                     (<AlertCircle className="inline-block w-3 h-3" />
                     Not Friend Contain)
@@ -131,7 +144,7 @@ export default function ConversationPageCard({
             <div className="shrink-0">
               <div className="w-5 h-5 bg-linear-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center">
                 <span className="text-xs font-bold text-white">
-                  {unreadCount > 9 ? "9+" : unreadCount}
+                  {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               </div>
             </div>

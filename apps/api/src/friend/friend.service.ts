@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 // types
 import {
   MyFriendsResponseType,
   NotMyFriendsResponseType,
   CreateFriendResponseType,
-} from "@repo/validation";
+} from '@repo/validation';
 
 @Injectable()
 export class FriendService {
@@ -15,7 +19,7 @@ export class FriendService {
   // todo - 친구 추가
   async createFriend(
     userId: number,
-    friendId: number
+    friendId: number,
   ): Promise<CreateFriendResponseType> {
     const friend = await this.prisma.friend.create({
       data: {
@@ -54,8 +58,8 @@ export class FriendService {
         },
       },
       orderBy: [
-        { isFavorite: "desc" }, // 즐겨찾기가 먼저
-        { createdAt: "desc" }, // 최근 추가 순
+        { isFavorite: 'desc' }, // 즐겨찾기가 먼저
+        { createdAt: 'desc' }, // 최근 추가 순
       ],
     });
     return friends;
@@ -99,7 +103,7 @@ export class FriendService {
       },
     });
     if (!user) {
-      throw new NotFoundException("사용자를 찾을 수 없습니다.");
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
     const friendRelation = await this.prisma.friend.findUnique({
       where: {
@@ -125,6 +129,96 @@ export class FriendService {
         },
       },
     });
-    return { message: "Friend deleted successfully." };
+    return { message: 'Friend deleted successfully.' };
+  }
+
+  /** 친구 즐겨찾기 토글 */
+  async toggleFavorite(userId: number, friendId: number): Promise<any> {
+    const friend = await this.prisma.friend.findUnique({
+      where: {
+        userId_friendId: { userId, friendId },
+      },
+    });
+    if (!friend) {
+      throw new NotFoundException('Friend relationship not found.');
+    }
+    try {
+      if (friend?.isFavorite === true) {
+        await this.prisma.friend.update({
+          where: {
+            userId_friendId: { userId, friendId },
+          },
+          data: {
+            isFavorite: false,
+          },
+        });
+        return {
+          message: 'Favorite status updated successfully.',
+          isFavorite: false,
+        };
+      } else if (friend?.isFavorite === false) {
+        await this.prisma.friend.update({
+          where: {
+            userId_friendId: { userId, friendId },
+          },
+          data: {
+            isFavorite: true,
+          },
+        });
+        return {
+          message: 'Favorite status updated successfully.',
+          isFavorite: true,
+        };
+      }
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      throw new InternalServerErrorException(
+        'Failed to toggle favorite status.',
+      );
+    }
+  }
+
+  /** 친구 차단 토글 */
+  async toggleBlock(userId: number, friendId: number): Promise<any> {
+    const friend = await this.prisma.friend.findUnique({
+      where: {
+        userId_friendId: { userId, friendId },
+      },
+    });
+    if (!friend) {
+      throw new NotFoundException('Friend relationship not found.');
+    }
+    try {
+      if (friend.isBlocked === true) {
+        await this.prisma.friend.update({
+          where: {
+            userId_friendId: { userId, friendId },
+          },
+          data: {
+            isBlocked: false,
+          },
+        });
+        return {
+          message: 'Block status updated successfully.',
+          isBlocked: false,
+        };
+      } else if (friend.isBlocked === false) {
+        await this.prisma.friend.update({
+          where: {
+            userId_friendId: { userId, friendId },
+          },
+          data: {
+            isBlocked: true,
+          },
+        });
+        return {
+          message: 'Block status updated successfully.',
+          isBlocked: true,
+        };
+      }
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      throw new InternalServerErrorException('Failed to toggle block status.');
+    }
   }
 }

@@ -1,25 +1,25 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import Providers from "@/provider/providers";
-import NavBar from "@/components/NavBar";
-import GlobalModal from "@/components/modals/GlobalModal";
-import { SocketProvider } from "@/contexts/SocketContext";
-import { Toaster } from "react-hot-toast";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
+import Providers from '@/provider/providers';
+import NavBar from '@/components/common/NavBar';
+import GlobalModal from '@/components/modal/GlobalModal';
+import { SocketProvider } from '@/contexts/SocketContext';
+import { Toaster } from 'react-hot-toast';
 
 //font 설정
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
 });
 
 export const metadata: Metadata = {
-  title: "T1 Chat",
-  description: "KakaoTalk Clone Coding",
+  title: 'T1 Chat',
+  description: 'KakaoTalk Clone Coding',
 };
 
 export default function RootLayout({
@@ -52,24 +52,24 @@ export default function RootLayout({
                   // 기본 스타일
                   duration: 3000,
                   style: {
-                    background: "#1a1a1a",
-                    color: "#fff",
-                    border: "1px solid #7f1d1d",
-                    borderRadius: "0.5rem",
-                    fontSize: "14px",
+                    background: '#1a1a1a',
+                    color: '#fff',
+                    border: '1px solid #7f1d1d',
+                    borderRadius: '0.5rem',
+                    fontSize: '14px',
                   },
                   // 성공 토스트
                   success: {
                     iconTheme: {
-                      primary: "#22c55e",
-                      secondary: "#fff",
+                      primary: '#22c55e',
+                      secondary: '#fff',
                     },
                   },
                   // 에러 토스트
                   error: {
                     iconTheme: {
-                      primary: "#ef4444",
-                      secondary: "#fff",
+                      primary: '#ef4444',
+                      secondary: '#fff',
                     },
                   },
                 }}

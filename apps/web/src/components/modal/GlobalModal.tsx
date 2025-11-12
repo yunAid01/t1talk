@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, AppState } from "@/store/store";
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, AppState } from '@/store/store';
+import { closeModal } from '@/store/features/modalSlice';
 
 // Modal components
-import ModalLayout from "./ModalLayout";
-import { closeModal } from "@/store/features/modalSlice";
-import UserFindModal from "./UserFindModal";
-import UserDetailModal from "./UserDetailModal";
-import LogoutConfirmModal from "./confirm/LogoutConfirmModal";
-import DeleteFriendConfirmModal from "./confirm/DeleteFriendConfirmModal";
-import CreateChatroomModal from "./CreateChatroomModal";
-import CreateFriendConfirmModal from "./confirm/CreateFriendConfirmModal";
-import DeleteMessageConfirmModal from "./confirm/DeleteMessageConfirmModal";
-import DeleteChatRoomConfirmModal from "./confirm/DeleteChatRoomConfirmModal";
+import ModalLayout from './ModalLayout';
+import UserFindModal from './user-modal/UserFindModal';
+import UserDetailModal from './user-modal/UserDetailModal';
+import LogoutConfirmModal from './confirm-modal/LogoutConfirmModal';
+import DeleteFriendConfirmModal from './confirm-modal/DeleteFriendConfirmModal';
+import CreateChatroomModal from './chatroom-modal/CreateChatroomModal';
+import CreateFriendConfirmModal from './confirm-modal/CreateFriendConfirmModal';
+import DeleteMessageConfirmModal from './confirm-modal/DeleteMessageConfirmModal';
+import DeleteChatRoomConfirmModal from './confirm-modal/DeleteChatRoomConfirmModal';
 
 export default function GlobalModal() {
   const dispatch: AppDispatch = useDispatch();
   const { isOpen, modalType, modalProps } = useSelector(
-    (state: AppState) => state.modal
+    (state: AppState) => state.modal,
   );
 
   // 열린 모달이 없으면 아무것도 렌더링하지 않음
@@ -36,6 +36,7 @@ export default function GlobalModal() {
     FRIEND_CREATE: CreateFriendConfirmModal,
     MESSAGE_DELETE: DeleteMessageConfirmModal,
     CHATROOM_DELETE: DeleteChatRoomConfirmModal,
+    DELETE_MESSAGE: DeleteMessageConfirmModal,
   };
   const SpecificModal = MODAL_COMPONENTS[modalType];
   if (!SpecificModal) {

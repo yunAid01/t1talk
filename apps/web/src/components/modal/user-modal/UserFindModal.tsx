@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 // contexts
-import { useSocket } from "@/contexts/SocketContext";
+import { useSocket } from '@/contexts/SocketContext';
 // api
-import { findNotMyFriends } from "@/api/friend";
+import { findNotMyFriends } from '@/api/friend';
 // types
-import { NotMyFriendsResponseType } from "@repo/validation";
+import { NotMyFriendsResponseType } from '@repo/validation';
 // components
-import UserCard from "../Card/UserCard";
-import Loading from "../Loding";
-import Error from "../Error";
-import OnlineIndicator from "../OnlineIndicator";
+import UserCard from '../../user/UserCard';
+import Loading from '../../common/Loding';
+import Error from '../../common/Error';
+import OnlineIndicator from '../../common/OnlineIndicator';
 
 export default function UserFindModal() {
   const { isUserOnline } = useSocket();
@@ -22,7 +22,7 @@ export default function UserFindModal() {
     isError,
     error,
   } = useQuery<NotMyFriendsResponseType>({
-    queryKey: ["notMyFriends"],
+    queryKey: ['notMyFriends'],
     queryFn: () => findNotMyFriends(),
     initialData: [],
   });
