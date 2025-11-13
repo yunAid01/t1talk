@@ -13,6 +13,7 @@ import { openModal } from '@/store/features/modalSlice';
 import { MyFriendsResponseType } from '@repo/validation';
 import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
+import { fr } from 'zod/v4/locales';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -79,17 +80,20 @@ export default function Home() {
       <div className="px-6 py-6">
         {friends.length > 0 ? (
           <div className="max-w-2xl min-w-[320px] mx-auto space-y-3">
-            {friends.map((f) => (
-              <div
-                key={f.id}
-                className="group relative bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 hover:border-red-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-900/20"
-              >
-                {/* 왼쪽 레드 라인 액센트 */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {friends.map(
+              (friend) =>
+                !friend.isBlocked && (
+                  <div
+                    key={friend.id}
+                    className="group relative bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 hover:border-red-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-900/20"
+                  >
+                    {/* 왼쪽 레드 라인 액센트 */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                <UserCard user={f.friend} />
-              </div>
-            ))}
+                    <UserCard user={friend.friend} />
+                  </div>
+                ),
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20">

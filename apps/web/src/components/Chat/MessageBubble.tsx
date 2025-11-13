@@ -114,7 +114,7 @@ export default function MessageBubble({
                 }
                 return (
                   <span className="text-xs text-green-500 font-medium">
-                    읽음
+                    all raed
                   </span>
                 );
               })()}

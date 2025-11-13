@@ -1,14 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createFriendFavorite } from '@/api/friend';
-import { FriendDetailsResponseType } from '@repo/validation';
 import toast from 'react-hot-toast';
 
-export const useCreateFavoriteMutation = (userId: number) => {
+// api
+import { createFriendBlock } from '@/api/friend';
+// type
+import { FriendDetailsResponseType } from '@repo/validation';
+
+export const useCreateBlockMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => createFriendFavorite(userId),
-    onMutate: async () => {
+    mutationFn: createFriendBlock,
+    onMutate: async (userId: number) => {
       await queryClient.cancelQueries({ queryKey: ['userDetails', userId] });
       const previousData = queryClient.getQueryData<FriendDetailsResponseType>([
         'userDetails',
@@ -18,18 +21,20 @@ export const useCreateFavoriteMutation = (userId: number) => {
         ['userDetails', userId],
         (old) => {
           if (!old) return undefined;
-          return { ...old, isFavorite: true };
+          return {
+            ...old,
+            isBlocked: true,
+          };
         },
       );
       return { previousData };
     },
     onSuccess: () => {
-      toast.success('즐겨찾기에 추가되었습니다');
-      queryClient.invalidateQueries({ queryKey: ['userDetails', userId] });
-      queryClient.invalidateQueries({ queryKey: ['friends'] }); // 친구 목록도 갱신
+      toast.success('Block created successfully');
+      queryClient.invalidateQueries({ queryKey: ['myFriends'] });
     },
-    onError: (error, _variables, context) => {
-      toast.error('즐겨찾기 추가에 실패했습니다');
+    onError: (error, userId, context) => {
+      toast.error('Failed to create block');
       if (context?.previousData) {
         queryClient.setQueryData(['userDetails', userId], context.previousData);
       }

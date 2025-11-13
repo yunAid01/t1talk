@@ -5,16 +5,17 @@
 import { AppState } from '@/store/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeModal } from '@/store/features/modalSlice';
-import { useCreateFriendMutation } from '@/hooks/friend/useCreateFriendMutation';
+import { useDeleteBlockMutation } from '@/hooks/friend/useDeleteBlockMutation';
 
-export default function CreateFriendConfirmModal() {
+export default function DeleteBlockConfirmModal() {
   const dispatch = useDispatch();
   const modalProps = useSelector((state: AppState) => state.modal.modalProps);
   const userId: number = modalProps?.userId;
-  const { mutate: createFriend } = useCreateFriendMutation();
+  const { mutate: deleteBlock } = useDeleteBlockMutation();
 
-  const handleCreate = () => {
-    createFriend(userId);
+  const handleDeleteBlock = () => {
+    deleteBlock(userId);
+    dispatch(closeModal());
   };
 
   const handleCancel = () => {
@@ -44,12 +45,12 @@ export default function CreateFriendConfirmModal() {
 
       {/* 제목 */}
       <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent mb-2">
-        Add Friend
+        Delete Block(will be update your friends)
       </h2>
 
       {/* 설명 */}
       <p className="text-gray-400 text-center mb-6">
-        Would you like to add this user as a friend?
+        Would you like to delete the block on this user?
       </p>
 
       {/* 버튼 그룹 */}
@@ -61,10 +62,10 @@ export default function CreateFriendConfirmModal() {
           Cancel
         </button>
         <button
-          onClick={handleCreate}
+          onClick={handleDeleteBlock}
           className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg shadow-red-900/50 transition-all duration-200 hover:scale-105"
         >
-          Add Friend
+          Delete Block
         </button>
       </div>
     </div>

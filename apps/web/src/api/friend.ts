@@ -41,15 +41,15 @@ export const getFriendDetails = async (
   return response;
 };
 
-interface Favorite {
+export interface FavoriteResponseType {
   message: string;
   isFavorite: boolean;
 }
 /** create favorite */
 export const createFriendFavorite = async (
   friendId: number,
-): Promise<Favorite> => {
-  const response: Favorite = await apiClient.patch(
+): Promise<FavoriteResponseType> => {
+  const response: FavoriteResponseType = await apiClient.patch(
     `/friend/${friendId}/favorite`,
   );
   return response;
@@ -57,8 +57,8 @@ export const createFriendFavorite = async (
 /** delete favorite */
 export const deleteFriendFavorite = async (
   friendId: number,
-): Promise<Favorite> => {
-  const response: Favorite = await apiClient.patch(
+): Promise<FavoriteResponseType> => {
+  const response: FavoriteResponseType = await apiClient.patch(
     `/friend/${friendId}/favorite`,
   );
   return response;

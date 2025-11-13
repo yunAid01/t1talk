@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -135,51 +136,58 @@ export class MessageService {
 
   /** 메시지 읽음 처리 */
   async markAsRead(userId: number, messageId: number) {
-    // 1. 이미 읽음 처리되었는지 확인
-    const existingReceipt = await this.prisma.readReceipt.findUnique({
-      where: {
-        messageId_userId: {
+    try {
+      // 1. 메시지 정보 조회 (chatRoomId 필요)
+      const message = await this.prisma.message.findUnique({
+        where: { id: messageId },
+        select: { chatRoomId: true, senderId: true },
+      });
+
+      if (!message) {
+        throw new NotFoundException('메시지를 찾을 수 없습니다.');
+      }
+
+      // 2. 자기 자신의 메시지는 읽음 처리 안함
+      if (message.senderId === userId) {
+        return null;
+      }
+
+      // 3. upsert로 중복 생성 방지 (있으면 업데이트, 없으면 생성)
+      const readReceipt = await this.prisma.readReceipt.upsert({
+        where: {
+          messageId_userId: {
+            messageId: messageId,
+            userId: userId,
+          },
+        },
+        update: {}, // 이미 있으면 아무것도 안함
+        create: {
           messageId: messageId,
           userId: userId,
         },
-      },
-    });
-    if (existingReceipt) {
-      return existingReceipt; // 이미 읽음 처리된 경우 반환
-    }
-
-    // 2. 메시지 정보 조회 (chatRoomId 필요)
-    const message = await this.prisma.message.findUnique({
-      where: { id: messageId },
-      select: { chatRoomId: true, senderId: true },
-    });
-
-    if (!message) {
-      throw new NotFoundException('메시지를 찾을 수 없습니다.');
-    }
-
-    // 3. 자기 자신의 메시지는 읽음 처리 안함
-    if (message.senderId === userId) {
-      return null;
-    }
-
-    // 4. DB에 읽음 기록 저장
-    const readReceipt = await this.prisma.readReceipt.create({
-      data: {
-        messageId: messageId,
-        userId: userId,
-      },
-    });
-
-    // 5. DB 저장 성공 후 WebSocket으로 해당 채팅방에만 브로드캐스트
-    this.chatGateway.server
-      .to(`chat_${message.chatRoomId}`)
-      .emit('message_read', {
-        messageId: messageId,
-        userId: userId,
-        readAt: readReceipt.readAt,
       });
 
-    return readReceipt;
+      // 4. DB 저장 성공 후 WebSocket으로 해당 채팅방에만 브로드캐스트
+      this.chatGateway.server
+        .to(`chat_${message.chatRoomId}`)
+        .emit('message_read', {
+          messageId: messageId,
+          userId: userId,
+          readAt: readReceipt.readAt,
+        });
+
+      return readReceipt;
+    } catch (error: any) {
+      // Prisma 유니크 제약 조건 에러는 무시 (이미 읽음 처리됨)
+      if (error.code === 'P2002') {
+        console.log(
+          `Message ${messageId} already marked as read by user ${userId}`,
+        );
+        return null;
+      }
+      throw new InternalServerErrorException(
+        '메시지 읽음 처리 중 오류가 발생했습니다.',
+      );
+    }
   }
 }

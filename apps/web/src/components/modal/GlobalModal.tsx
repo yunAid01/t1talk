@@ -5,15 +5,21 @@ import type { AppDispatch, AppState } from '@/store/store';
 import { closeModal } from '@/store/features/modalSlice';
 
 // Modal components
-import ModalLayout from './ModalLayout';
+// friends
+import DeleteFriendConfirmModal from './confirm-modal/DeleteFriendConfirmModal';
+import CreateFriendConfirmModal from './confirm-modal/CreateFriendConfirmModal';
+import DeleteBlockConfirmModal from './confirm-modal/DeleteBlockConfirmModal';
+import CreateBlockConfirmModal from './confirm-modal/CreateBlockConfirmModal';
+// user
 import UserFindModal from './user-modal/UserFindModal';
 import UserDetailModal from './user-modal/UserDetailModal';
 import LogoutConfirmModal from './confirm-modal/LogoutConfirmModal';
-import DeleteFriendConfirmModal from './confirm-modal/DeleteFriendConfirmModal';
+// chatroom
 import CreateChatroomModal from './chatroom-modal/CreateChatroomModal';
-import CreateFriendConfirmModal from './confirm-modal/CreateFriendConfirmModal';
-import DeleteMessageConfirmModal from './confirm-modal/DeleteMessageConfirmModal';
 import DeleteChatRoomConfirmModal from './confirm-modal/DeleteChatRoomConfirmModal';
+// message
+import DeleteMessageConfirmModal from './confirm-modal/DeleteMessageConfirmModal';
+import ModalLayout from './ModalLayout';
 
 export default function GlobalModal() {
   const dispatch: AppDispatch = useDispatch();
@@ -34,9 +40,11 @@ export default function GlobalModal() {
 
     // confirm
     LOGOUT_CONFIRM: LogoutConfirmModal,
-    FRIEND_DELETE: DeleteFriendConfirmModal,
     FRIEND_CREATE: CreateFriendConfirmModal,
+    FRIEND_DELETE: DeleteFriendConfirmModal,
     MESSAGE_DELETE: DeleteMessageConfirmModal,
+    BLOCK_CREATE: CreateBlockConfirmModal,
+    BLOCK_DELETE: DeleteBlockConfirmModal,
 
     // chatroom
     CREATE_CHATROOM: CreateChatroomModal,

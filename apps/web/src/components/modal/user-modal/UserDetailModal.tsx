@@ -18,9 +18,16 @@ import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 import OnlineIndicator from '@/components/common/OnlineIndicator';
 import Link from 'next/link';
-import UserDetailActionButton from '@/components/user/UserDetailButton';
+import UserDetailActionButton from '@/components/modal/user-modal/UserDetailButton';
+
+// hooks
+import { useCreateFavoriteMutation } from '@/hooks/friend/useCreateFavoriteMutation';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useDeleteFavoriteMutation } from '@/hooks/friend/useDeleteFavoriteMutation';
 
 export default function UserDetailModal() {
+  const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const { isUserOnline } = useSocket();
   const currentUser = useSelector(selectCurrentUser);
@@ -41,6 +48,8 @@ export default function UserDetailModal() {
   });
 
   const { mutate: createChatRoomMutate } = useCreateChatRoomMutation();
+  const { mutate: createFavoriteMutate } = useCreateFavoriteMutation(userId);
+  const { mutate: deleteFavoriteMutate } = useDeleteFavoriteMutation(userId);
 
   // 친구 추가 핸들러
   const handleAddFriend = async () => {
@@ -56,16 +65,29 @@ export default function UserDetailModal() {
     );
   };
 
-  // friends favorite toggle
-  const handleToggleCreateFavorite = () => {
-    if (userDetails.isFavorite === true) {
-      createFriendFavorite(userId);
-    } else {
-      deleteFriendFavorite(userId);
-    }
+  // create friends favorite
+  const handleCreateFavorite = () => {
+    createFavoriteMutate();
   };
 
-  // friends block toggle -- todo
+  //  delete friends favorite
+  const handleDeleteFavorite = () => {
+    deleteFavoriteMutate();
+  };
+
+  // create friend block
+  const handleOpenCreateBlockModal = () => {
+    dispatch(
+      openModal({ modalType: 'BLOCK_CREATE', modalProps: { userId: userId } }),
+    );
+  };
+
+  // delete friend block
+  const handleOpenDeleteBlockModal = () => {
+    dispatch(
+      openModal({ modalType: 'BLOCK_DELETE', modalProps: { userId: userId } }),
+    );
+  };
 
   // 채팅창 생성
   const handleCreateChatRoom = () => {
@@ -182,37 +204,59 @@ export default function UserDetailModal() {
               {!userDetails.isFriend ? (
                 <UserDetailActionButton
                   text="ADD FRIEND"
+                  variant="add"
                   onClick={() => handleAddFriend()}
-                  className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full px-4 py-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 border border-gray-700 hover:border-gray-600 shadow-lg hover:shadow-xl"
                 />
               ) : (
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2">
+                  {/* 메시지 버튼 - 전체 너비 */}
                   <UserDetailActionButton
                     text="MESSAGE"
+                    variant="message"
                     onClick={() => handleCreateChatRoom()}
-                    className="flex-1 px-4 py-3 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="col-span-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-900/50 hover:shadow-xl hover:shadow-red-900/70 border border-red-800"
                   />
-                  {/* <UserDetailActionButton
-                    text="BLOCK"
-                    onClick={() => handleBlockUser()}
-                    className="flex-1 px-4 py-3 bg-gray-800 hover:bg-red-900/50 text-gray-300 hover:text-red-400 font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-                  /> */}
+
+                  {/* 차단/차단해제 */}
+                  {!userDetails.isBlocked ? (
+                    <UserDetailActionButton
+                      text="BLOCK"
+                      variant="block"
+                      onClick={() => handleOpenCreateBlockModal()}
+                      className="px-3 py-2.5 bg-gray-800/80 hover:bg-red-900/30 text-gray-300 hover:text-red-400 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 border border-gray-700 hover:border-red-800"
+                    />
+                  ) : (
+                    <UserDetailActionButton
+                      text="UNBLOCK"
+                      variant="unblock"
+                      onClick={() => handleOpenDeleteBlockModal()}
+                      className="px-3 py-2.5 bg-red-900/50 hover:bg-red-800/50 text-red-300 hover:text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 border border-red-800 hover:border-red-700"
+                    />
+                  )}
+
+                  {/* 친구 삭제 */}
                   <UserDetailActionButton
                     text="REMOVE"
+                    variant="remove"
                     onClick={() => handleOpenDeleteFriendModal()}
-                    className="flex-1 px-4 py-3 bg-gray-800 hover:bg-red-900/50 text-gray-300 hover:text-red-400 font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="px-3 py-2.5 bg-gray-800/80 hover:bg-red-900/30 text-gray-300 hover:text-red-400 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 border border-gray-700 hover:border-red-800"
                   />
+
+                  {/* 즐겨찾기 추가/제거 */}
                   {!userDetails.isFavorite ? (
                     <UserDetailActionButton
                       text="FAVORITE"
-                      onClick={() => handleToggleCreateFavorite()}
-                      className="flex-1 px-4 py-3 bg-yellow-700 hover:bg-yellow-800 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                      variant="favorite"
+                      onClick={() => handleCreateFavorite()}
+                      className="col-span-2 px-4 py-2.5 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-yellow-900/50 hover:shadow-xl hover:shadow-yellow-900/70 border border-yellow-800"
                     />
                   ) : (
                     <UserDetailActionButton
                       text="UNFAVORITE"
-                      onClick={() => handleToggleCreateFavorite()}
-                      className="flex-1 px-4 py-3 bg-gray-800 hover:bg-yellow-900/50 text-gray-300 hover:text-yellow-400 font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                      variant="unfavorite"
+                      onClick={() => handleDeleteFavorite()}
+                      className="col-span-2 px-4 py-2.5 bg-gray-800/80 hover:bg-yellow-900/30 text-gray-300 hover:text-yellow-400 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 border border-gray-700 hover:border-yellow-800"
                     />
                   )}
                 </div>
