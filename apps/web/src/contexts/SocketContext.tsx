@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/features/authSlice';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -32,46 +32,46 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (!currentUser) return;
 
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem('access_token');
     if (!token) return;
 
     // Socket.io 연결
-    const socketInstance = io("http://localhost:3009/chat", {
+    const socketInstance = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL, {
       auth: { token },
-      transports: ["websocket", "polling"],
+      transports: ['websocket', 'polling'],
     });
 
-    socketInstance.on("connect", () => {
-      console.log("✅ Socket connected:", socketInstance.id);
+    socketInstance.on('connect', () => {
+      console.log('✅ Socket connected:', socketInstance.id);
       setIsConnected(true);
     });
 
-    socketInstance.on("disconnect", () => {
-      console.log("❌ Socket disconnected");
+    socketInstance.on('disconnect', () => {
+      console.log('❌ Socket disconnected');
       setIsConnected(false);
       // 연결 끊기면 온라인 사용자 목록 초기화
       setOnlineUsers(new Set());
     });
 
-    socketInstance.on("error", (error) => {
-      console.error("Socket error:", error);
+    socketInstance.on('error', (error) => {
+      console.error('Socket error:', error);
     });
 
     // 🆕 초기 온라인 사용자 목록 수신
-    socketInstance.on("online_users", (userIds: number[]) => {
-      console.log("📋 Initial online users:", userIds);
+    socketInstance.on('online_users', (userIds: number[]) => {
+      console.log('📋 Initial online users:', userIds);
       setOnlineUsers(new Set(userIds));
     });
 
     // 🆕 사용자 온라인 상태 변경
-    socketInstance.on("user_online", (data: { userId: number }) => {
-      console.log("🟢 User came online:", data.userId);
+    socketInstance.on('user_online', (data: { userId: number }) => {
+      console.log('🟢 User came online:', data.userId);
       setOnlineUsers((prev) => new Set(prev).add(data.userId));
     });
 
     // 🆕 사용자 오프라인 상태 변경
-    socketInstance.on("user_offline", (data: { userId: number }) => {
-      console.log("🔴 User went offline:", data.userId);
+    socketInstance.on('user_offline', (data: { userId: number }) => {
+      console.log('🔴 User went offline:', data.userId);
       setOnlineUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(data.userId);
@@ -81,18 +81,18 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // 채팅방 입장 이벤트 (기존 유지)
     socketInstance.on(
-      "user_joined",
+      'user_joined',
       (data: { userId: number; chatRoomId: number }) => {
-        console.log("👤 User joined room:", data);
-      }
+        console.log('👤 User joined room:', data);
+      },
     );
 
     // 채팅방 퇴장 이벤트 (기존 유지)
     socketInstance.on(
-      "user_left",
+      'user_left',
       (data: { userId: number; chatRoomId: number }) => {
-        console.log("👋 User left room:", data);
-      }
+        console.log('👋 User left room:', data);
+      },
     );
 
     setSocket(socketInstance);

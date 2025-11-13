@@ -103,7 +103,7 @@ export default function ConfigPage() {
                         <Image
                           src={
                             currentUser?.profileImageUrl ||
-                            '/images/default-profileImage.jpg'
+                            '/images/default-profileImage-v2.jpg'
                           }
                           alt={currentUser?.nickname || 'User'}
                           fill

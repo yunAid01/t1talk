@@ -42,7 +42,7 @@ export default function MessageBubble({
             <Image
               src={
                 message.sender.profileImageUrl ||
-                '/images/default-profileImage.jpg'
+                '/images/default-profileImage-v2.jpg'
               }
               alt={message.sender.nickname}
               fill

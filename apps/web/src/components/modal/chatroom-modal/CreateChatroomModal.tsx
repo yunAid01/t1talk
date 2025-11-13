@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { findFriends } from '@/api/friend';
 import { MyFriendsResponseType } from '@repo/validation';
-import Image from 'next/image';
 import { MessageSquarePlus, Users, Search } from 'lucide-react';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 // hooks
 import {
@@ -23,7 +23,7 @@ export default function CreateChatroomModal() {
   const [groupName, setGroupName] = useState('');
 
   const { data: friends, isLoading } = useQuery<MyFriendsResponseType>({
-    queryKey: ['myFriends'],
+    queryKey: QUERY_KEYS.FRIENDS.LIST,
     queryFn: findFriends,
     initialData: [],
   });

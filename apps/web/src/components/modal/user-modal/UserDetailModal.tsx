@@ -2,11 +2,7 @@ import Image from 'next/image';
 import { selectCurrentUser } from '@/store/features/authSlice';
 import { useSelector } from 'react-redux';
 import type { AppState } from '@/store/store';
-import {
-  createFriendFavorite,
-  deleteFriendFavorite,
-  getFriendDetails,
-} from '@/api/friend';
+import { getFriendDetails } from '@/api/friend';
 import { useQuery } from '@tanstack/react-query';
 import { FriendDetailsResponseType } from '@repo/validation';
 import { useDispatch } from 'react-redux';
@@ -25,6 +21,8 @@ import { useCreateFavoriteMutation } from '@/hooks/friend/useCreateFavoriteMutat
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useDeleteFavoriteMutation } from '@/hooks/friend/useDeleteFavoriteMutation';
+import NotFound from '@/components/common/NotFound';
+import { IMAGE_URL } from '@/constants/imageUrl';
 
 export default function UserDetailModal() {
   const queryClient = useQueryClient();
@@ -103,24 +101,10 @@ export default function UserDetailModal() {
   // 데이터 없음
   if (!userDetails) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="w-20 h-20 bg-red-900/20 rounded-full flex items-center justify-center mb-4">
-          <svg
-            className="w-10 h-10 text-red-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
-        <p className="text-gray-400">Player not found</p>
-      </div>
+      <NotFound
+        message="Player not found"
+        description="플레이어를 찾을 수 없습니다.."
+      />
     );
   }
 
@@ -149,11 +133,8 @@ export default function UserDetailModal() {
             {/* 프로필 이미지 */}
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-900 bg-gray-800">
               <Image
-                src={
-                  userDetails.profileImageUrl ||
-                  '/images/default-profileImage.jpg'
-                }
-                alt={userDetails.nickname}
+                src={userDetails.profileImageUrl || IMAGE_URL.DEFAULT.PROFILE}
+                alt={userDetails.nickname || 'User Profile'}
                 fill
                 sizes="128px"
                 className="object-cover"

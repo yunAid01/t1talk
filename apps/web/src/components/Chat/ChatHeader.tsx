@@ -30,7 +30,7 @@ export default function ChatHeader({
       <div className="flex items-center gap-4">
         {/* 뒤로가기 버튼 */}
         <button
-          onClick={() => router.push('/conversations')}
+          onClick={() => router.push('/chatroom')}
           className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group"
         >
           <ArrowLeft

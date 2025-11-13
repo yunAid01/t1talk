@@ -38,7 +38,8 @@ export default function ChatroomModalFriendsList({
       <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-700 mr-3">
         <Image
           src={
-            friend.friend.profileImageUrl || '/images/default-profileImage.jpg'
+            friend.friend.profileImageUrl ||
+            '/images/default-profileImage-v2.jpg'
           }
           alt={friend.friend.nickname}
           fill

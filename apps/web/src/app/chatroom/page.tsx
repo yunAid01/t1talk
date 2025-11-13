@@ -5,6 +5,7 @@ import {
   ChatRoomsListResponseType,
   MyFriendsResponseType,
 } from '@repo/validation';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 // components
 import ChatRoomPageEmptyState from '@/components/chatroom/ChatroomPageEmptyState';
@@ -25,12 +26,12 @@ export default function ConversationsPage() {
 
   // get conversation rooms
   const {
-    data: conversationRooms,
-    isLoading: isLoadingConversationRooms,
-    isError: isErrorConversationRooms,
-    error: errorConversationRooms,
+    data: chatRooms,
+    isLoading: isLoadingChatRooms,
+    isError: isErrorChatRooms,
+    error: errorChatRooms,
   } = useQuery<ChatRoomsListResponseType>({
-    queryKey: ['chatRooms'],
+    queryKey: QUERY_KEYS.CHAT_ROOMS.LIST,
     queryFn: () => getUserChatRooms(),
     initialData: [],
   });
@@ -42,7 +43,7 @@ export default function ConversationsPage() {
     isError: isErrorFriends,
     error: errorFriends,
   } = useQuery<MyFriendsResponseType>({
-    queryKey: ['myFriends'], // cash 이용하기
+    queryKey: QUERY_KEYS.FRIENDS.LIST,
     queryFn: () => findFriends(),
     initialData: [],
   });
@@ -56,15 +57,15 @@ export default function ConversationsPage() {
     dispatch(openModal({ modalType: 'CREATE_CHATROOM' }));
   };
 
-  if (isLoadingConversationRooms || isLoadingFriends) {
+  if (isLoadingChatRooms || isLoadingFriends) {
     return <Loading message="Loading conversations..." />;
   }
 
-  if (isErrorConversationRooms) {
+  if (isErrorChatRooms) {
     return (
       <Error
         message="Failed to load conversations"
-        error={errorConversationRooms}
+        error={errorChatRooms}
         onRetry={() => window.location.reload()}
       />
     );
@@ -84,34 +85,23 @@ export default function ConversationsPage() {
       <ChatRoomPageHeader openModal={handleOpenCreateChatroomModal} />
       {/* 채팅방 목록 */}
       <div className="px-6 py-6">
-        {conversationRooms && conversationRooms.length > 0 ? (
+        {chatRooms && chatRooms.length > 0 ? (
           <div className="max-w-2xl min-w-[320px] mx-auto space-y-3">
-            {conversationRooms.map((room) => {
-              const otherUsers = room.users.filter(
-                (u) => u.id !== currentUser?.id,
+            {chatRooms.map((room) => {
+              const otherUsers = room?.users.filter(
+                (u) => u.user.id !== currentUser?.id,
               );
-              const areAllMyFriends = otherUsers.every((u) =>
-                isMyFriends(u.id),
+              const areAllFriends = otherUsers.every((user) =>
+                isMyFriends(user.id),
               );
-              if (otherUsers.length === 1 && otherUsers[0]) {
-                return (
-                  <ChatRoomPageCard
-                    key={room.id}
-                    chatroom={room}
-                    otherUser={otherUsers[0]}
-                    isFriend={areAllMyFriends}
-                  />
-                );
-              } else if (otherUsers.length > 1) {
-                return (
-                  <ChatRoomPageCard
-                    key={room.id}
-                    chatroom={room}
-                    otherUsers={otherUsers}
-                    isFriend={areAllMyFriends}
-                  />
-                );
-              }
+              return (
+                <ChatRoomPageCard
+                  key={room.id}
+                  chatRoom={room}
+                  otherUsers={otherUsers}
+                  isFriend={areAllFriends}
+                />
+              );
             })}
           </div>
         ) : (

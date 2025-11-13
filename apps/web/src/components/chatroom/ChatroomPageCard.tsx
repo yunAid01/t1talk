@@ -8,39 +8,48 @@ import type { ChatRoomUserType, ChatRoomItemType } from '@repo/validation';
 // redux
 import { useDispatch } from 'react-redux';
 import { openModal } from '@/store/features/modalSlice';
+import { IMAGE_URL } from '@/constants/imageUrl';
 
 interface ChatRoomPageCardProps {
   isFriend: boolean;
-  otherUsers?: ChatRoomUserType[];
-  otherUser?: ChatRoomUserType;
-  chatroom: ChatRoomItemType;
+  otherUsers: ChatRoomUserType[];
+  chatRoom: ChatRoomItemType;
 }
 export default function ChatRoomPageCard({
   isFriend,
-  otherUser,
   otherUsers,
-  chatroom,
+  chatRoom,
 }: ChatRoomPageCardProps) {
   const dispatch = useDispatch();
 
-  const displayName = chatroom.isGroup
-    ? `##GroupChat #${chatroom.name}` ||
-      `##GroupChat #(${chatroom.users.length})`
-    : `##Chat #${otherUser?.user.nickname || 'Unknown'}`;
+  // 그룹 채팅 이름
+  const groupName =
+    (chatRoom.isGroup && chatRoom.name) ||
+    `Group (${chatRoom.users.map((u) => u.user.nickname).join(', ')})`;
 
-  const displayImage = chatroom.isGroup
-    ? '/images/default-chatImage.jpg'
-    : otherUser?.user.profileImageUrl || '/images/default-chatImage.jpg';
+  // 1:1 채팅 이름
+  const privateName =
+    !chatRoom.isGroup && otherUsers[0] && otherUsers.length === 1
+      ? otherUsers[0].user.nickname
+      : 'Unknown User';
 
-  const lastMessageText = chatroom.lastMessage || 'No messages yet';
-  const lastMessageTime = chatroom.lastMessageAt
-    ? new Date(chatroom.lastMessageAt).toLocaleTimeString('en-US', {
+  const displayName = chatRoom.isGroup
+    ? `##GroupChat #${groupName}`
+    : `##Chat #${privateName}`;
+
+  const displayImage = chatRoom.isGroup
+    ? IMAGE_URL.DEFAULT.GROUP_CHATROOM
+    : otherUsers[0]?.user.profileImageUrl || IMAGE_URL.DEFAULT.CHATROOM;
+
+  const lastMessageText = chatRoom.lastMessage || 'No messages yet';
+  const lastMessageTime = chatRoom.lastMessageAt
+    ? new Date(chatRoom.lastMessageAt).toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       })
     : '';
 
-  const unreadCount = chatroom.unreadCount || 0;
+  const unreadCount = chatRoom.unreadCount || 0;
 
   const handleDeleteChatRoom = (e: React.MouseEvent) => {
     e.preventDefault(); // Link 이동 방지
@@ -48,17 +57,26 @@ export default function ChatRoomPageCard({
     dispatch(
       openModal({
         modalType: 'CHATROOM_DELETE',
-        modalProps: { chatRoomId: chatroom.id },
+        modalProps: { chatRoomId: chatRoom.id },
       }),
     );
   };
 
   return (
-    <Link href={`/chatroom/${chatroom.id}`}>
+    <Link href={`/chatroom/${chatRoom.id}`}>
       <div className="group relative bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 hover:border-red-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-900/20 cursor-pointer">
         {/* 왼쪽 레드 라인 액센트 */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
+        {/* T1 로고 배경 (오른쪽 치우침) */}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-30 group-hover:opacity-10 transition-opacity duration-300">
+          <Image
+            src="/t1-logo.svg"
+            alt="T1 Logo"
+            width={80}
+            height={40}
+            className="object-contain"
+          />
+        </div>
         <div className="flex items-center p-3 space-x-3">
           {/* 프로필 이미지 */}
           <div className="relative shrink-0">

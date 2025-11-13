@@ -13,7 +13,8 @@ import { openModal } from '@/store/features/modalSlice';
 import { MyFriendsResponseType } from '@repo/validation';
 import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
-import { fr } from 'zod/v4/locales';
+import { QUERY_KEYS } from '@/constants/queryKeys';
+import NotFound from '@/components/common/NotFound';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ export default function Home() {
     isError,
     error,
   } = useQuery<MyFriendsResponseType>({
-    queryKey: ['myFriends'],
+    queryKey: QUERY_KEYS.FRIENDS.LIST,
     queryFn: () => findFriends(),
     initialData: [],
   });
@@ -78,47 +79,29 @@ export default function Home() {
 
       {/* 친구 목록 영역 */}
       <div className="px-6 py-6">
-        {friends.length > 0 ? (
+        {friends.filter((friend) => friend.isBlocked === false).length > 0 ? (
           <div className="max-w-2xl min-w-[320px] mx-auto space-y-3">
-            {friends.map(
-              (friend) =>
-                !friend.isBlocked && (
-                  <div
-                    key={friend.id}
-                    className="group relative bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 hover:border-red-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-900/20"
-                  >
-                    {/* 왼쪽 레드 라인 액센트 */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                    <UserCard user={friend.friend} />
-                  </div>
-                ),
-            )}
+            {friends
+              .filter((friend) => friend.isBlocked === false)
+              .map((friend) => (
+                <div
+                  key={friend.id}
+                  className="group relative bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-sm border border-gray-800 hover:border-red-700/50 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-red-900/20"
+                >
+                  {/* 왼쪽 레드 라인 액센트 */}
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <UserCard
+                    isFavorite={friend.isFavorite}
+                    user={friend.friend}
+                  />
+                </div>
+              ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-24 h-24 bg-gradient-to-br from-red-900/20 to-gray-900/20 rounded-full flex items-center justify-center mb-6">
-              <svg
-                className="w-12 h-12 text-red-700/50"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
-            </div>
-            <p className="text-gray-500 text-lg font-medium mb-2">
-              No friends yet
-            </p>
-            <p className="text-gray-600 text-sm">
-              Start by adding some friends to chat!
-            </p>
-          </div>
+          <NotFound
+            message="No friends yet"
+            description="Start by adding some friends to chat!"
+          />
         )}
       </div>
     </div>

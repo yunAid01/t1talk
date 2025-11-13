@@ -88,7 +88,7 @@ export class ChatService {
       const newGroupChatroom = await this.prisma.chatRoom.create({
         data: {
           isGroup: true,
-          name: data.name || `Group Chat ${Date.now().toString().slice(-7)}`,
+          name: data.name || null,
           users: {
             create: [
               ...data.friendIds.map((id) => ({ userId: id })),

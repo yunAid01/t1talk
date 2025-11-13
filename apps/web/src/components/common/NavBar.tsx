@@ -49,7 +49,7 @@ export default function NavBar() {
         ) : (
           <div className="relative shrink-0 w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
             <Image
-              src="/images/default-profileImage.jpg"
+              src="/images/default-profileImage-v2.jpg"
               alt="Default Profile Image"
               fill
               sizes="48px"
