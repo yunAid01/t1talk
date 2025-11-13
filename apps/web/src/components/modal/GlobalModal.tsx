@@ -28,13 +28,18 @@ export default function GlobalModal() {
 
   // 모달 컴포넌트 매핑
   const MODAL_COMPONENTS: { [key: string]: React.ElementType } = {
+    // user
     USER_FIND: UserFindModal,
     USER_DETAIL: UserDetailModal,
+
+    // confirm
     LOGOUT_CONFIRM: LogoutConfirmModal,
-    CREATE_CHATROOM: CreateChatroomModal,
     FRIEND_DELETE: DeleteFriendConfirmModal,
     FRIEND_CREATE: CreateFriendConfirmModal,
     MESSAGE_DELETE: DeleteMessageConfirmModal,
+
+    // chatroom
+    CREATE_CHATROOM: CreateChatroomModal,
     CHATROOM_DELETE: DeleteChatRoomConfirmModal,
     DELETE_MESSAGE: DeleteMessageConfirmModal,
   };

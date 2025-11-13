@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, MoreVertical, Phone, Video } from 'lucide-react';
+import { ArrowLeft, LogOut, MoreVertical, Phone, Video } from 'lucide-react';
 
 // redux
 import { openModal } from '@/store/features/modalSlice';
@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import OnlineIndicator from '../common/OnlineIndicator';
 
 interface ChatHeaderProps {
+  onLeaveChatRoom: () => void;
   otherUserId: number;
   chatRoomName: string;
   otherUserImage: string;
@@ -15,6 +16,7 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({
+  onLeaveChatRoom,
   otherUserId,
   chatRoomName,
   otherUserImage,
@@ -70,22 +72,32 @@ export default function ChatHeader({
         </div>
       </div>
 
-      {/* todo - 우측 액션 버튼들 */}
+      {/* 우측 액션 버튼들 */}
       <div className="flex items-center gap-2">
-        <button className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group">
+        <button
+          className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group"
+          title="Voice Call"
+        >
           <Phone
             size={20}
             className="text-gray-400 group-hover:text-red-500 transition-colors"
           />
         </button>
-        <button className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group">
+        <button
+          className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group"
+          title="Video Call"
+        >
           <Video
             size={20}
             className="text-gray-400 group-hover:text-red-500 transition-colors"
           />
         </button>
-        <button className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group">
-          <MoreVertical
+        <button
+          onClick={onLeaveChatRoom}
+          className="p-2 hover:bg-red-900/20 rounded-lg transition-colors duration-200 group"
+          title="채팅방 나가기"
+        >
+          <LogOut
             size={20}
             className="text-gray-400 group-hover:text-red-500 transition-colors"
           />

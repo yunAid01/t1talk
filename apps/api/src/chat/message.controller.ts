@@ -47,16 +47,6 @@ export class MessageController {
     return this.messageService.deleteMessage(user.id, messageId);
   }
 
-  @Get('room/:chatRoomId')
-  @ApiOperation({ summary: 'Get messages in a chat room' })
-  @ZodResponse({ type: MessageListResponseDto })
-  getChatRoomMessages(
-    @User() user: AuthenticatedUser,
-    @Param('chatRoomId', ParseIntPipe) chatRoomId: number,
-  ) {
-    return this.messageService.getChatRoomMessages(user.id, chatRoomId);
-  }
-
   @Post(':messageId/read')
   @ApiOperation({ summary: 'Mark message as read' })
   markAsRead(
@@ -65,5 +55,15 @@ export class MessageController {
   ) {
     const userId = user.id;
     return this.messageService.markAsRead(userId, messageId);
+  }
+
+  @Get('room/:chatRoomId')
+  @ApiOperation({ summary: 'Get messages in a chat room' })
+  @ZodResponse({ type: MessageListResponseDto })
+  getChatRoomMessages(
+    @User() user: AuthenticatedUser,
+    @Param('chatRoomId', ParseIntPipe) chatRoomId: number,
+  ) {
+    return this.messageService.getChatRoomMessages(user.id, chatRoomId);
   }
 }

@@ -1,27 +1,28 @@
-import apiClient from "./client";
+import apiClient from './client';
 import {
   CreateMessageInputType,
   MessageType,
   DeleteMessageResponseType,
-} from "@repo/validation";
+} from '@repo/validation';
 
 /** 메시지 생성 (HTTP - 백업용) */
 export const createMessage = async (
-  data: CreateMessageInputType
+  data: CreateMessageInputType,
 ): Promise<MessageType> => {
-  return await apiClient.post("/messages", data);
+  const message: MessageType = await apiClient.post('/messages', data);
+  return message;
 };
 
 /** 채팅방의 메시지 목록 조회 */
 export const getChatRoomMessages = async (
-  chatRoomId: number
+  chatRoomId: number,
 ): Promise<MessageType[]> => {
   return await apiClient.get(`/messages/room/${chatRoomId}`);
 };
 
 /** 메시지 삭제 */
 export const deleteMessage = async (
-  messageId: number
+  messageId: number,
 ): Promise<DeleteMessageResponseType> => {
   return await apiClient.delete(`/messages/${messageId}`);
 };

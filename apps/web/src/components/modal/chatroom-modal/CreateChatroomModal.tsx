@@ -8,7 +8,10 @@ import Image from 'next/image';
 import { MessageSquarePlus, Users, Search } from 'lucide-react';
 
 // hooks
-import { useCreateChatRoomMutation, useCreateGroupChatRoomMutation } from '@/hooks/chatroom/useCreateChatroomMutation';
+import {
+  useCreateChatRoomMutation,
+  useCreateGroupChatRoomMutation,
+} from '@/hooks/chatroom/useCreateChatroomMutation';
 
 export default function CreateChatroomModal() {
   const { mutate: createChatRoomMutate } = useCreateChatRoomMutation();

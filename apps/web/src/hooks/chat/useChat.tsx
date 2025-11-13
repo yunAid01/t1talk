@@ -1,86 +1,99 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { useSocket } from "@/contexts/SocketContext";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "@/store/features/authSlice";
-import {
-  CreateMessageInputType,
-  MessageType,
-  MessageDeletedEventType,
-} from "@repo/validation";
+import { useEffect, useState, useCallback } from 'react';
+import { useSocket } from '@/contexts/SocketContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '@/store/features/authSlice';
+import { MessageType, MessageDeletedEventType } from '@repo/validation';
+import toast from 'react-hot-toast';
 
 export const useChat = (chatRoomId: number) => {
   const { socket, isConnected } = useSocket();
   const queryClient = useQueryClient();
-  const currentUser = useSelector(selectCurrentUser);
-  const [messages, setMessages] = useState<MessageType[]>([]);
+  const currentUser = useSelector(selectCurrentUser); // 현재 로그인한 사용자
   const [typingUsers, setTypingUsers] = useState<Set<number>>(new Set());
 
   // 채팅방 입장
   useEffect(() => {
-    if (!socket || !isConnected || !chatRoomId) return;
+    if (!socket || !isConnected || !chatRoomId) {
+      toast.error(
+        '소켓 연결이 되어 있지 않거나 채팅방 ID가 유효하지 않습니다.',
+      );
+      return;
+    }
 
-    console.log("Joining room:", chatRoomId);
-    socket.emit("join_room", { chatRoomId });
+    console.log('Joining room:', chatRoomId);
+    socket.emit('join_room', { chatRoomId });
 
     return () => {
-      console.log("Leaving room:", chatRoomId);
-      socket.emit("leave_room", { chatRoomId });
+      console.log('Leaving room:', chatRoomId);
+      socket.emit('leave_room', { chatRoomId });
     };
   }, [socket, isConnected, chatRoomId]);
 
   // 새 메시지 수신
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {
+      toast.error('소켓이 연결되어 있지 않습니다.');
+      return;
+    }
 
     const handleNewMessage = (message: MessageType) => {
-      console.log("New message received:", message);
-      setMessages((prev) => [...prev, message]);
-
-      // 채팅방 목록 갱신
-      queryClient.invalidateQueries({ queryKey: ["chatRooms"] });
+      if (message.senderId === currentUser?.id) return; // 내 메시지는 무시
+      queryClient.setQueryData<MessageType[]>(
+        ['messages', chatRoomId],
+        (old) => {
+          if (!old) return [message];
+          if (old.some((msg) => msg.id === message.id)) return old; // 중복방지
+          return [...old, message];
+        },
+      );
+      queryClient.invalidateQueries({ queryKey: ['chatRooms'] });
     };
 
-    socket.on("new_message", handleNewMessage);
-
+    socket.on('new_message', handleNewMessage);
     return () => {
-      socket.off("new_message", handleNewMessage);
+      socket.off('new_message', handleNewMessage);
     };
-  }, [socket, queryClient]);
+  }, [socket, queryClient, chatRoomId]);
 
   // 메시지 삭제 이벤트
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {
+      toast.error('Socket connect Error...');
+      return;
+    }
 
     const handleMessageDeleted = (data: MessageDeletedEventType) => {
-      console.log("Message deleted:", data);
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === data.messageId ? { ...msg, isDeleted: true } : msg
-        )
+      queryClient.setQueryData<MessageType[]>(
+        ['messages', chatRoomId],
+        (old) => {
+          if (!old) return [];
+          return old.map((msg) =>
+            msg.id === data.messageId ? { ...msg, isDeleted: true } : msg,
+          );
+        },
       );
     };
 
-    socket.on("message_deleted", handleMessageDeleted);
-
+    socket.on('message_deleted', handleMessageDeleted);
     return () => {
-      socket.off("message_deleted", handleMessageDeleted);
+      socket.off('message_deleted', handleMessageDeleted);
     };
-  }, [socket]);
+  }, [socket, queryClient, chatRoomId]);
 
   // 타이핑 상태 수신
   useEffect(() => {
     if (!socket) return;
 
     const handleUserTyping = (data: { userId: number; nickname: string }) => {
-      console.log("User typing:", data);
+      console.log('User typing:', data);
       setTypingUsers((prev) => new Set(prev).add(data.userId));
     };
 
     const handleUserStopTyping = (data: { userId: number }) => {
-      console.log("User stopped typing:", data);
+      console.log('User stopped typing:', data);
       setTypingUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(data.userId);
@@ -88,47 +101,62 @@ export const useChat = (chatRoomId: number) => {
       });
     };
 
-    socket.on("user_typing", handleUserTyping);
-    socket.on("user_stop_typing", handleUserStopTyping);
+    socket.on('user_typing', handleUserTyping);
+    socket.on('user_stop_typing', handleUserStopTyping);
 
     return () => {
-      socket.off("user_typing", handleUserTyping);
-      socket.off("user_stop_typing", handleUserStopTyping);
+      socket.off('user_typing', handleUserTyping);
+      socket.off('user_stop_typing', handleUserStopTyping);
     };
   }, [socket]);
 
-  // 메시지 전송
-  const sendMessage = useCallback(
-    (content: string) => {
-      if (!socket || !content.trim()) return;
+  // 실시간 채팅 읽음 수신
+  useEffect(() => {
+    if (!socket) return;
 
-      const messageData: CreateMessageInputType = {
-        chatRoomId,
-        content: content.trim(),
-      };
+    const handleReadMessage = (data: {
+      messageId: number;
+      userId: number;
+      readAt: Date | string;
+    }) => {
+      console.log('Message read event received:', data);
+      queryClient.setQueryData<MessageType[]>(
+        ['messages', chatRoomId],
+        (old) => {
+          if (!old) return [];
+          return old.map((msg) => {
+            if (msg.id !== data.messageId) return msg;
+            const isAlreadyRead = msg.readReceipts.some(
+              (receipt) => receipt.userId === data.userId,
+            );
+            if (isAlreadyRead) return msg;
+            return {
+              ...msg,
+              readReceipts: [
+                ...msg.readReceipts,
+                {
+                  userId: data.userId,
+                  readAt: new Date(data.readAt), // 날짜 객체로 변환
+                },
+              ],
+            };
+          });
+        },
+      );
+    };
 
-      console.log("Sending message:", messageData);
-      socket.emit("send_message", messageData);
-    },
-    [socket, chatRoomId]
-  );
+    socket.on('message_read', handleReadMessage);
 
-  // 메시지 삭제
-  const deleteMessage = useCallback(
-    (messageId: number) => {
-      if (!socket) return;
-
-      console.log("Deleting message:", messageId);
-      socket.emit("delete_message", { messageId, chatRoomId });
-    },
-    [socket, chatRoomId]
-  );
+    return () => {
+      socket.off('message_read', handleReadMessage); // cleanup
+    };
+  }, [queryClient, socket, chatRoomId]);
 
   // 타이핑 시작
   const startTyping = useCallback(() => {
     if (!socket || !currentUser) return;
 
-    socket.emit("typing_start", {
+    socket.emit('typing_start', {
       chatRoomId,
       userId: currentUser.id,
       nickname: currentUser.nickname,
@@ -139,30 +167,16 @@ export const useChat = (chatRoomId: number) => {
   const stopTyping = useCallback(() => {
     if (!socket || !currentUser) return;
 
-    socket.emit("typing_stop", {
+    socket.emit('typing_stop', {
       chatRoomId,
       userId: currentUser.id,
     });
   }, [socket, chatRoomId, currentUser]);
 
-  // 읽음 처리
-  const markAsRead = useCallback(
-    (messageId: number) => {
-      if (!socket) return;
-
-      socket.emit("mark_as_read", { messageId, chatRoomId });
-    },
-    [socket, chatRoomId]
-  );
-
   return {
-    messages,
     typingUsers,
     isConnected,
-    sendMessage,
-    deleteMessage,
     startTyping,
     stopTyping,
-    markAsRead,
   };
 };

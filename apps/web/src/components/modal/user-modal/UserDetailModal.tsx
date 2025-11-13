@@ -2,10 +2,9 @@ import Image from 'next/image';
 import { selectCurrentUser } from '@/store/features/authSlice';
 import { useSelector } from 'react-redux';
 import type { AppState } from '@/store/store';
-import { PlusCircle, User } from 'lucide-react';
 import {
-  createFriend,
   createFriendFavorite,
+  deleteFriendFavorite,
   getFriendDetails,
 } from '@/api/friend';
 import { useQuery } from '@tanstack/react-query';
@@ -14,7 +13,7 @@ import { useDispatch } from 'react-redux';
 
 import { useCreateChatRoomMutation } from '@/hooks/chatroom/useCreateChatroomMutation';
 import { useSocket } from '@/contexts/SocketContext';
-import { openModal } from '@/store/features/modalSlice';
+import { closeModal, openModal } from '@/store/features/modalSlice';
 import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 import OnlineIndicator from '@/components/common/OnlineIndicator';
@@ -61,8 +60,12 @@ export default function UserDetailModal() {
   const handleToggleCreateFavorite = () => {
     if (userDetails.isFavorite === true) {
       createFriendFavorite(userId);
+    } else {
+      deleteFriendFavorite(userId);
     }
   };
+
+  // friends block toggle -- todo
 
   // 채팅창 생성
   const handleCreateChatRoom = () => {
@@ -220,7 +223,10 @@ export default function UserDetailModal() {
 
         {/* 추가 정보 (선택사항) */}
         {currentUser && currentUser.id === userDetails.id && (
-          <div className="mt-4 p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+          <div
+            onClick={() => dispatch(closeModal())}
+            className="mt-4 p-4 bg-gray-800/50 border border-gray-700 rounded-lg"
+          >
             <Link href={'/config'}>
               <p className="text-center text-sm text-gray-400">
                 Configure your profile! 👋

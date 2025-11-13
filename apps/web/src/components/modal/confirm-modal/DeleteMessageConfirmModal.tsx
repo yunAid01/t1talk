@@ -5,14 +5,19 @@ import { closeModal } from '@/store/features/modalSlice';
 import type { AppState } from '@/store/store';
 import { AlertTriangle } from 'lucide-react';
 
+// mutation
+import { useDeleteMessageMutation } from '@/hooks/message/useDeleteMessageMutation';
+
 export default function DeleteMessageConfirmModal() {
   const dispatch = useDispatch();
+
   const modalProps = useSelector((state: AppState) => state.modal.modalProps);
   const messageId = modalProps?.messageId;
-  const deleteMessage = modalProps?.deleteMessage;
+  const chatRoomId = modalProps?.chatRoomId;
+  const { mutate: deleteMessageMutate } = useDeleteMessageMutation(chatRoomId);
 
   const handleConfirm = () => {
-    deleteMessage?.(messageId);
+    deleteMessageMutate(messageId);
     dispatch(closeModal());
   };
 

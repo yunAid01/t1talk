@@ -9,10 +9,14 @@ import {
   DeleteMessageResponseType,
   MessageType,
 } from '@repo/validation';
+import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class MessageService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   private readonly messageInclude = {
     sender: {
@@ -35,7 +39,6 @@ export class MessageService {
     userId: number,
     data: CreateMessageInputType,
   ): Promise<MessageType> {
-    // 1. 채팅방 존재 및 권한 확인
     const chatRoomUser = await this.prisma.chatRoomUser.findFirst({
       where: {
         chatRoomId: data.chatRoomId,
@@ -43,12 +46,9 @@ export class MessageService {
         leftAt: null, // 현재 참여중인 유저만
       },
     });
-
     if (!chatRoomUser) {
       throw new ForbiddenException('채팅방에 접근 권한이 없습니다.');
     }
-
-    // 2. 메시지 생성
     const message = await this.prisma.message.create({
       data: {
         chatRoomId: data.chatRoomId,
@@ -57,11 +57,13 @@ export class MessageService {
       },
       include: this.messageInclude,
     });
-    // 3. 채팅방 업데이트 시간 갱신
     await this.prisma.chatRoom.update({
       where: { id: data.chatRoomId },
       data: { updatedAt: new Date() },
     });
+    this.chatGateway.server
+      .to(`chat_${data.chatRoomId}`)
+      .emit('new_message', message);
     return message;
   }
 
@@ -85,11 +87,16 @@ export class MessageService {
     }
 
     // 3. 소프트 삭제
-    await this.prisma.message.update({
+    const deletedMessage = await this.prisma.message.update({
       where: { id: messageId },
-      data: { isDeleted: true },
+      data: { isDeleted: true, updatedAt: new Date() },
     });
-
+    this.chatGateway.server
+      .to(`chat_${deletedMessage.chatRoomId}`)
+      .emit('message_deleted', {
+        messageId: deletedMessage.id,
+        chatRoomId: deletedMessage.chatRoomId,
+      });
     return {
       success: true,
       message: '메시지가 삭제되었습니다.',
@@ -128,7 +135,7 @@ export class MessageService {
 
   /** 메시지 읽음 처리 */
   async markAsRead(userId: number, messageId: number) {
-    // 이미 읽음 처리되었는지 확인
+    // 1. 이미 읽음 처리되었는지 확인
     const existingReceipt = await this.prisma.readReceipt.findUnique({
       where: {
         messageId_userId: {
@@ -140,11 +147,39 @@ export class MessageService {
     if (existingReceipt) {
       return existingReceipt; // 이미 읽음 처리된 경우 반환
     }
-    return await this.prisma.readReceipt.create({
+
+    // 2. 메시지 정보 조회 (chatRoomId 필요)
+    const message = await this.prisma.message.findUnique({
+      where: { id: messageId },
+      select: { chatRoomId: true, senderId: true },
+    });
+
+    if (!message) {
+      throw new NotFoundException('메시지를 찾을 수 없습니다.');
+    }
+
+    // 3. 자기 자신의 메시지는 읽음 처리 안함
+    if (message.senderId === userId) {
+      return null;
+    }
+
+    // 4. DB에 읽음 기록 저장
+    const readReceipt = await this.prisma.readReceipt.create({
       data: {
         messageId: messageId,
         userId: userId,
       },
     });
+
+    // 5. DB 저장 성공 후 WebSocket으로 해당 채팅방에만 브로드캐스트
+    this.chatGateway.server
+      .to(`chat_${message.chatRoomId}`)
+      .emit('message_read', {
+        messageId: messageId,
+        userId: userId,
+        readAt: readReceipt.readAt,
+      });
+
+    return readReceipt;
   }
 }

@@ -8,7 +8,7 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { JwtService } from '@nestjs/jwt';
 
@@ -20,6 +20,7 @@ import type {
   TypingStopEventType,
 } from '@repo/validation';
 
+@Injectable()
 @WebSocketGateway({
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:3001',
@@ -36,10 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 온라인 사용자 추적 (userId -> Set<socketId>)
   private onlineUsers: Map<number, Set<string>> = new Map();
 
-  constructor(
-    private readonly messageService: MessageService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   async handleConnection(client: Socket) {
     try {
@@ -147,59 +145,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  /** 메시지 전송 */
-  @SubscribeMessage('send_message')
-  async handleSendMessage(
-    @MessageBody() data: CreateMessageInputType,
-    @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      const userId = client.data.userId;
-
-      // DB에 메시지 저장
-      const message = await this.messageService.createMessage(userId, data);
-
-      // 채팅방의 모든 사용자에게 메시지 브로드캐스트
-      const roomName = `chat_${data.chatRoomId}`;
-      this.server.to(roomName).emit('new_message', message);
-
-      this.logger.log(`Message sent to room ${roomName} by user ${userId}`);
-    } catch (error: any) {
-      this.logger.error(
-        error instanceof Error
-          ? `Error sending message: ${error.message}`
-          : 'Unknown error',
-      );
-      client.emit('error', { message: error.message });
-    }
-  }
-
-  /** 메시지 삭제 */
-  @SubscribeMessage('delete_message')
-  async handleDeleteMessage(
-    @MessageBody() data: { messageId: number; chatRoomId: number },
-    @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      const userId = client.data.userId;
-
-      // DB에서 메시지 삭제
-      await this.messageService.deleteMessage(userId, data.messageId);
-
-      // 채팅방의 모든 사용자에게 삭제 알림
-      const roomName = `chat_${data.chatRoomId}`;
-      this.server.to(roomName).emit('message_deleted', {
-        messageId: data.messageId,
-        chatRoomId: data.chatRoomId,
-      });
-
-      this.logger.log(`Message ${data.messageId} deleted by user ${userId}`);
-    } catch (error: any) {
-      this.logger.error(`Error deleting message: ${error.message}`);
-      client.emit('error', { message: error.message });
-    }
-  }
-
   /** 타이핑 시작 */
   @SubscribeMessage('typing_start')
   handleTypingStart(
@@ -228,32 +173,5 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId: data.userId,
       chatRoomId: data.chatRoomId,
     });
-  }
-
-  /** 메시지 읽음 처리 */
-  @SubscribeMessage('mark_as_read')
-  async handleMarkAsRead(
-    @MessageBody() data: { messageId: number; chatRoomId: number },
-    @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      const userId = client.data.userId;
-
-      await this.messageService.markAsRead(userId, data.messageId);
-
-      // 채팅방에 읽음 상태 브로드캐스트
-      const roomName = `chat_${data.chatRoomId}`;
-      this.server.to(roomName).emit('message_read', {
-        messageId: data.messageId,
-        userId: userId,
-        readAt: new Date(),
-      });
-    } catch (error) {
-      this.logger.error(
-        error instanceof Error
-          ? `Error marking message as read: ${error.message}`
-          : 'Unknown error',
-      );
-    }
   }
 }

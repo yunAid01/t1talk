@@ -74,8 +74,10 @@ export type ChatRoomCreateRequestType = z.infer<
 export type GroupChatRoomCreateRequestType = z.infer<
   typeof GroupChatRoomCreateRequestSchema
 >;
+export type ChatRoomUserType = z.infer<typeof ChatRoomUserSchema>;
 export type ChatRoomResponseType = z.infer<typeof ChatRoomResponseSchema>;
-export type ChatRoomType = z.infer<typeof ChatRoomSchema>; // 하나
+export type ChatRoomType = z.infer<typeof ChatRoomSchema>;
+export type ChatRoomItemType = z.infer<typeof ChatRoomItemSchema>; // 하나
 export type ChatRoomsListResponseType = z.infer<
   typeof ChatRoomsListResponseSchema
 >;

@@ -1,38 +1,33 @@
-import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Smile } from "lucide-react";
+import { useState, useRef, useEffect } from 'react';
+import { Send, Paperclip, Smile } from 'lucide-react';
+import { useCreateMessageMutation } from '@/hooks/message/useCreateMessageMutation';
 
 interface MessageInputProps {
-  onSendMessage: (message: string) => void;
+  chatRoomId: number;
   onTypingStart?: () => void;
   onTypingStop?: () => void;
 }
 
 export default function MessageInput({
-  onSendMessage,
+  chatRoomId,
   onTypingStart,
   onTypingStop,
 }: MessageInputProps) {
-  const [message, setMessage] = useState("");
+  const { mutate: createMessage } = useCreateMessageMutation(chatRoomId);
+  const [content, setContent] = useState('');
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSend = () => {
-    if (!message.trim()) return;
-    onSendMessage(message);
-    setMessage("");
+    if (!content.trim()) return;
+    createMessage(content);
+    setContent('');
     // 메시지 전송 시 타이핑 종료
     if (onTypingStop) onTypingStop();
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
   // 타이핑 감지
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
+    setContent(e.target.value);
 
     if (onTypingStart && !typingTimeoutRef.current) {
       onTypingStart();
@@ -71,13 +66,12 @@ export default function MessageInput({
         {/* 입력 필드 */}
         <div className="flex-1 relative">
           <textarea
-            value={message}
+            value={content}
             onChange={handleChange}
-            onKeyPress={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
             className="w-full px-4 py-3 pr-12 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-all duration-200 resize-none min-h-[48px] max-h-[120px]"
-            style={{ scrollbarWidth: "thin" }}
+            style={{ scrollbarWidth: 'thin' }}
           />
 
           {/* 이모지 버튼 */}
@@ -92,12 +86,12 @@ export default function MessageInput({
         {/* 전송 버튼 */}
         <button
           onClick={handleSend}
-          disabled={!message.trim()}
+          disabled={!content.trim()}
           className="p-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed rounded-xl shadow-lg shadow-red-900/50 transition-all duration-200 hover:scale-105 disabled:hover:scale-100 mb-1"
         >
           <Send
             size={20}
-            className={message.trim() ? "text-white" : "text-gray-500"}
+            className={content.trim() ? 'text-white' : 'text-gray-500'}
           />
         </button>
       </div>

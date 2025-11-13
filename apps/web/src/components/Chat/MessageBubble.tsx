@@ -9,14 +9,16 @@ import { useDispatch } from 'react-redux';
 import { openModal } from '@/store/features/modalSlice';
 
 interface MessageBubbleProps {
-  deleteMessage: (messageId: number) => void;
   message: MessageType & { isMe: boolean };
   isGroup: boolean;
+  chatRoomId: number;
+  userCount: number;
 }
 export default function MessageBubble({
-  deleteMessage,
   message,
   isGroup,
+  chatRoomId,
+  userCount,
 }: MessageBubbleProps) {
   const dispatch = useDispatch();
 
@@ -24,7 +26,7 @@ export default function MessageBubble({
     dispatch(
       openModal({
         modalType: 'MESSAGE_DELETE',
-        modalProps: { deleteMessage, messageId: message.id },
+        modalProps: { messageId: message.id, chatRoomId },
       }),
     );
   };
@@ -79,7 +81,8 @@ export default function MessageBubble({
                 message.content
               )}
             </p>
-            {message.isMe && !message.isDeleted && (
+            {/* meessage.id > 0 -> because of optimistic ui */}
+            {message.isMe && !message.isDeleted && message.id > 0 && (
               <button
                 onClick={handleOpenDeleteMessageModal}
                 className="absolute -top-2 -right-2 p-1.5 bg-gray-900 rounded-full border border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 hover:border-red-500"
@@ -90,13 +93,32 @@ export default function MessageBubble({
             )}
           </div>
 
-          {/* 시간 */}
-          <span className="text-xs text-gray-600 mt-1 px-2">
-            {new Date(message.createdAt).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
+          {/* 시간 & 읽음 표시 */}
+          <div className="flex items-center gap-2 mt-1 px-2">
+            <span className="text-xs text-gray-600">
+              {new Date(message.createdAt).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </span>
+            {!message.isDeleted &&
+              (() => {
+                const unreadCount =
+                  userCount - (message.readReceipts.length + 1);
+                if (unreadCount > 0) {
+                  return (
+                    <span className="text-xs text-yellow-500 font-medium">
+                      {unreadCount}
+                    </span>
+                  );
+                }
+                return (
+                  <span className="text-xs text-green-500 font-medium">
+                    읽음
+                  </span>
+                );
+              })()}
+          </div>
         </div>
       </div>
     </div>

@@ -3,47 +3,7 @@ import Link from 'next/link';
 import { AlertCircle, LogOut } from 'lucide-react';
 
 // types
-interface ChatRoom {
-  id: number;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  name: string | null;
-  isGroup: boolean;
-  imageUrl: string | null;
-  users: {
-    id: number;
-    user: {
-      nickname: string;
-      id: number;
-      statusMessage: string | null;
-      profileImageUrl: string | null;
-    };
-    userId: number;
-    chatRoomId: number;
-    isAdmin: boolean;
-    joinedAt: string | Date;
-    leftAt: string | Date | null;
-    notificationOn: boolean;
-  }[];
-  lastMessage: string | null;
-  lastMessageAt: string | Date | null;
-  unreadCount: number;
-}
-interface OtherUser {
-  id: number;
-  user: {
-    nickname: string;
-    id: number;
-    statusMessage: string | null;
-    profileImageUrl: string | null;
-  };
-  userId: number;
-  chatRoomId: number;
-  isAdmin: boolean;
-  joinedAt: string | Date;
-  leftAt: string | Date | null;
-  notificationOn: boolean;
-}
+import type { ChatRoomUserType, ChatRoomItemType } from '@repo/validation';
 
 // redux
 import { useDispatch } from 'react-redux';
@@ -51,9 +11,9 @@ import { openModal } from '@/store/features/modalSlice';
 
 interface ChatRoomPageCardProps {
   isFriend: boolean;
-  otherUsers?: OtherUser[];
-  otherUser?: OtherUser;
-  chatroom: ChatRoom;
+  otherUsers?: ChatRoomUserType[];
+  otherUser?: ChatRoomUserType;
+  chatroom: ChatRoomItemType;
 }
 export default function ChatRoomPageCard({
   isFriend,
@@ -135,7 +95,6 @@ export default function ChatRoomPageCard({
                 </span>
               )}
             </div>
-
             <p className="text-xs text-gray-400 truncate">{lastMessageText}</p>
           </div>
 
