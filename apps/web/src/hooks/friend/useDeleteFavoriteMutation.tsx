@@ -8,15 +8,14 @@ export const useDeleteFavoriteMutation = (userId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => deleteFriendFavorite(userId),
+    mutationFn: () => deleteFriendFavorite(userId),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['userDetails', userId] });
-      const previousData = queryClient.getQueryData<FriendDetailsResponseType>([
-        'userDetails',
-        userId,
-      ]);
+      const previousData = queryClient.getQueryData<FriendDetailsResponseType>(
+        QUERY_KEYS.FRIENDS.DETAILS(userId),
+      );
       queryClient.setQueryData<FriendDetailsResponseType>(
-        ['userDetails', userId],
+        QUERY_KEYS.FRIENDS.DETAILS(userId),
         (old) => {
           if (!old) return undefined;
           return { ...old, isFavorite: false };

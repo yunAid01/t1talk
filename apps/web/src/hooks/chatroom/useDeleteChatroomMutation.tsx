@@ -10,6 +10,7 @@ import { closeModal } from '@/store/features/modalSlice';
 //api
 import { deleteChatRoom } from '@/api/chatroom';
 import toast from 'react-hot-toast';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 export const useDeleteChatRoomMutation = () => {
   const queryClient = useQueryClient();
@@ -20,7 +21,7 @@ export const useDeleteChatRoomMutation = () => {
     mutationFn: deleteChatRoom,
     onSuccess: () => {
       toast.success('채팅방이 삭제되었습니다.');
-      queryClient.invalidateQueries({ queryKey: ['chatRooms'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
       dispatch(closeModal());
       router.push('/chatroom');
     },

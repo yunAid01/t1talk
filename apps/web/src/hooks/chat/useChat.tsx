@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/features/authSlice';
 import { MessageType, MessageDeletedEventType } from '@repo/validation';
 import toast from 'react-hot-toast';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 export const useChat = (chatRoomId: number) => {
   const { socket, isConnected } = useSocket();
@@ -22,12 +23,9 @@ export const useChat = (chatRoomId: number) => {
       );
       return;
     }
-
-    console.log('Joining room:', chatRoomId);
     socket.emit('join_room', { chatRoomId });
 
     return () => {
-      console.log('Leaving room:', chatRoomId);
       socket.emit('leave_room', { chatRoomId });
     };
   }, [socket, isConnected, chatRoomId]);
@@ -42,14 +40,14 @@ export const useChat = (chatRoomId: number) => {
     const handleNewMessage = (message: MessageType) => {
       if (message.senderId === currentUser?.id) return; // 내 메시지는 무시
       queryClient.setQueryData<MessageType[]>(
-        ['messages', chatRoomId],
+        QUERY_KEYS.MESSAGE.LIST(chatRoomId),
         (old) => {
           if (!old) return [message];
           if (old.some((msg) => msg.id === message.id)) return old; // 중복방지
           return [...old, message];
         },
       );
-      queryClient.invalidateQueries({ queryKey: ['chatRooms'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
     };
 
     socket.on('new_message', handleNewMessage);
@@ -58,7 +56,6 @@ export const useChat = (chatRoomId: number) => {
     };
   }, [socket, queryClient, chatRoomId]);
 
-  // 메시지 삭제 이벤트
   useEffect(() => {
     if (!socket) {
       toast.error('Socket connect Error...');
@@ -67,7 +64,7 @@ export const useChat = (chatRoomId: number) => {
 
     const handleMessageDeleted = (data: MessageDeletedEventType) => {
       queryClient.setQueryData<MessageType[]>(
-        ['messages', chatRoomId],
+        QUERY_KEYS.MESSAGE.LIST(chatRoomId),
         (old) => {
           if (!old) return [];
           return old.map((msg) =>
@@ -88,12 +85,10 @@ export const useChat = (chatRoomId: number) => {
     if (!socket) return;
 
     const handleUserTyping = (data: { userId: number; nickname: string }) => {
-      console.log('User typing:', data);
       setTypingUsers((prev) => new Set(prev).add(data.userId));
     };
 
     const handleUserStopTyping = (data: { userId: number }) => {
-      console.log('User stopped typing:', data);
       setTypingUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(data.userId);
@@ -119,9 +114,8 @@ export const useChat = (chatRoomId: number) => {
       userId: number;
       readAt: Date | string;
     }) => {
-      console.log('Message read event received:', data);
       queryClient.setQueryData<MessageType[]>(
-        ['messages', chatRoomId],
+        QUERY_KEYS.MESSAGE.LIST(chatRoomId),
         (old) => {
           if (!old) return [];
           return old.map((msg) => {

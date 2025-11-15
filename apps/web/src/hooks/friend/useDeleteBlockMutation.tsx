@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { deleteFriendBlock } from '@/api/friend';
 // type
 import { FriendDetailsResponseType } from '@repo/validation';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 export const useDeleteBlockMutation = () => {
   const queryClient = useQueryClient();
@@ -13,12 +14,11 @@ export const useDeleteBlockMutation = () => {
     mutationFn: deleteFriendBlock,
     onMutate: async (userId: number) => {
       await queryClient.cancelQueries({ queryKey: ['userDetails', userId] });
-      const previousData = queryClient.getQueryData<FriendDetailsResponseType>([
-        'userDetails',
-        userId,
-      ]);
+      const previousData = queryClient.getQueryData<FriendDetailsResponseType>(
+        QUERY_KEYS.FRIENDS.DETAILS(userId),
+      );
       queryClient.setQueryData<FriendDetailsResponseType>(
-        ['userDetails', userId],
+        QUERY_KEYS.FRIENDS.DETAILS(userId),
         (old) => {
           if (!old) return undefined;
           return {
@@ -31,12 +31,15 @@ export const useDeleteBlockMutation = () => {
     },
     onSuccess: () => {
       toast.success('Block deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['myFriends'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FRIENDS.LIST });
     },
     onError: (error, userId, context) => {
       toast.error('Failed to delete block');
       if (context?.previousData) {
-        queryClient.setQueryData(['userDetails', userId], context.previousData);
+        queryClient.setQueryData(
+          QUERY_KEYS.FRIENDS.DETAILS(userId),
+          context.previousData,
+        );
       }
     },
   });

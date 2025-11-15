@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { createFriendBlock } from '@/api/friend';
 // type
 import { FriendDetailsResponseType } from '@repo/validation';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 export const useCreateBlockMutation = () => {
   const queryClient = useQueryClient();
@@ -12,13 +13,14 @@ export const useCreateBlockMutation = () => {
   return useMutation({
     mutationFn: createFriendBlock,
     onMutate: async (userId: number) => {
-      await queryClient.cancelQueries({ queryKey: ['userDetails', userId] });
-      const previousData = queryClient.getQueryData<FriendDetailsResponseType>([
-        'userDetails',
-        userId,
-      ]);
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.FRIENDS.DETAILS(userId),
+      });
+      const previousData = queryClient.getQueryData<FriendDetailsResponseType>(
+        QUERY_KEYS.FRIENDS.DETAILS(userId),
+      );
       queryClient.setQueryData<FriendDetailsResponseType>(
-        ['userDetails', userId],
+        QUERY_KEYS.FRIENDS.DETAILS(userId),
         (old) => {
           if (!old) return undefined;
           return {
@@ -31,12 +33,15 @@ export const useCreateBlockMutation = () => {
     },
     onSuccess: () => {
       toast.success('Block created successfully');
-      queryClient.invalidateQueries({ queryKey: ['myFriends'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FRIENDS.LIST });
     },
     onError: (error, userId, context) => {
       toast.error('Failed to create block');
       if (context?.previousData) {
-        queryClient.setQueryData(['userDetails', userId], context.previousData);
+        queryClient.setQueryData(
+          QUERY_KEYS.FRIENDS.DETAILS(userId),
+          context.previousData,
+        );
       }
     },
   });

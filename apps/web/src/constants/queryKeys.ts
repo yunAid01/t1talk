@@ -3,6 +3,9 @@ export const QUERY_KEYS = {
     LIST: ['myFriends'],
     DETAILS: (friendId: number) => ['userDetails', friendId],
   },
+  NOTMYFRIENDS: {
+    LIST: ['notMyFriends'],
+  },
   CHAT_ROOMS: {
     LIST: ['myChatRooms'],
     DETAILS: (chatRoomId: number) => ['chatRooms', 'details', chatRoomId],
