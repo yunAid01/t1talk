@@ -5,6 +5,7 @@ import { MessageType } from '@repo/validation';
 // currnentUser
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/features/authSlice';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 export const useCreateMessageMutation = (chatRoomId: number) => {
   const currentUser = useSelector(selectCurrentUser);
@@ -49,9 +50,12 @@ export const useCreateMessageMutation = (chatRoomId: number) => {
       return { previousMessages };
     },
     onSuccess: (realMessage) => {
-      queryClient.setQueryData(['messages', chatRoomId], (old: MessageType[]) =>
-        old?.map((msg) => (msg.id < 0 ? realMessage : msg)),
+      queryClient.setQueryData(
+        QUERY_KEYS.MESSAGE.LIST(chatRoomId),
+        (old: MessageType[]) =>
+          old?.map((msg) => (msg.id < 0 ? realMessage : msg)),
       );
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
     },
     onError: (_err, _messageId, context) => {
       if (context?.previousMessages) {

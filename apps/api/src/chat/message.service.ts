@@ -40,32 +40,49 @@ export class MessageService {
     userId: number,
     data: CreateMessageInputType,
   ): Promise<MessageType> {
-    const chatRoomUser = await this.prisma.chatRoomUser.findFirst({
-      where: {
-        chatRoomId: data.chatRoomId,
-        userId: userId,
-        leftAt: null, // 현재 참여중인 유저만
-      },
-    });
-    if (!chatRoomUser) {
-      throw new ForbiddenException('채팅방에 접근 권한이 없습니다.');
+    try {
+      const chatRoomUser = await this.prisma.chatRoomUser.findFirst({
+        where: {
+          chatRoomId: data.chatRoomId,
+          userId: userId,
+          leftAt: null, // 현재 참여중인 유저만
+        },
+      });
+      if (!chatRoomUser) {
+        throw new ForbiddenException('채팅방에 접근 권한이 없습니다.');
+      }
+      const message = await this.prisma.message.create({
+        data: {
+          chatRoomId: data.chatRoomId,
+          senderId: userId,
+          content: data.content,
+        },
+        include: this.messageInclude,
+      });
+      await this.prisma.chatRoom.update({
+        where: { id: data.chatRoomId },
+        data: { updatedAt: new Date() },
+      });
+      this.chatGateway.server
+        .to(`chat_${data.chatRoomId}`)
+        .emit('new_message', message);
+      const friends = await this.prisma.friend.findMany({
+        where: {
+          userId: userId,
+        },
+      });
+      friends.map((friend) =>
+        this.chatGateway.server
+          .to(`user_${friend.friendId}`)
+          .emit('new_notification', message),
+      );
+
+      return message;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        '메시지 생성 중 오류가 발생했습니다.',
+      );
     }
-    const message = await this.prisma.message.create({
-      data: {
-        chatRoomId: data.chatRoomId,
-        senderId: userId,
-        content: data.content,
-      },
-      include: this.messageInclude,
-    });
-    await this.prisma.chatRoom.update({
-      where: { id: data.chatRoomId },
-      data: { updatedAt: new Date() },
-    });
-    this.chatGateway.server
-      .to(`chat_${data.chatRoomId}`)
-      .emit('new_message', message);
-    return message;
   }
 
   /** 메시지 삭제 (소프트 삭제) */
@@ -73,35 +90,43 @@ export class MessageService {
     userId: number,
     messageId: number,
   ): Promise<DeleteMessageResponseType> {
-    // 1. 메시지 존재 확인
-    const message = await this.prisma.message.findUnique({
-      where: { id: messageId },
-    });
-
-    if (!message) {
-      throw new NotFoundException('메시지를 찾을 수 없습니다.');
-    }
-
-    // 2. 본인이 보낸 메시지인지 확인
-    if (message.senderId !== userId) {
-      throw new ForbiddenException('본인이 보낸 메시지만 삭제할 수 있습니다.');
-    }
-
-    // 3. 소프트 삭제
-    const deletedMessage = await this.prisma.message.update({
-      where: { id: messageId },
-      data: { isDeleted: true, updatedAt: new Date() },
-    });
-    this.chatGateway.server
-      .to(`chat_${deletedMessage.chatRoomId}`)
-      .emit('message_deleted', {
-        messageId: deletedMessage.id,
-        chatRoomId: deletedMessage.chatRoomId,
+    try {
+      // 1. 메시지 존재 확인
+      const message = await this.prisma.message.findUnique({
+        where: { id: messageId },
       });
-    return {
-      success: true,
-      message: '메시지가 삭제되었습니다.',
-    };
+
+      if (!message) {
+        throw new NotFoundException('메시지를 찾을 수 없습니다.');
+      }
+
+      // 2. 본인이 보낸 메시지인지 확인
+      if (message.senderId !== userId) {
+        throw new ForbiddenException(
+          '본인이 보낸 메시지만 삭제할 수 있습니다.',
+        );
+      }
+
+      // 3. 소프트 삭제
+      const deletedMessage = await this.prisma.message.update({
+        where: { id: messageId },
+        data: { isDeleted: true, updatedAt: new Date() },
+      });
+      this.chatGateway.server
+        .to(`chat_${deletedMessage.chatRoomId}`)
+        .emit('message_deleted', {
+          messageId: deletedMessage.id,
+          chatRoomId: deletedMessage.chatRoomId,
+        });
+      return {
+        success: true,
+        message: '메시지가 삭제되었습니다.',
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        '메시지 생성 중 오류가 발생했습니다.',
+      );
+    }
   }
 
   /** 채팅방의 메시지 목록 조회 */

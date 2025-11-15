@@ -47,7 +47,6 @@ export const useChat = (chatRoomId: number) => {
           return [...old, message];
         },
       );
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
     };
 
     socket.on('new_message', handleNewMessage);

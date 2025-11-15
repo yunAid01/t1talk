@@ -4,6 +4,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/features/authSlice';
+import { MessageType } from '@repo/validation';
+import { usePathname } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants/queryKeys';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -24,6 +29,8 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
@@ -77,6 +84,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
         newSet.delete(data.userId);
         return newSet;
       });
+    });
+
+    // 메세지 수신 알람
+    socketInstance.on('new_notification', (message: MessageType) => {
+      console.log('💬 New message received via socket:', message);
+      const isViewingChatRoom = pathname.includes(
+        `/chatroom/${message.chatRoomId}`,
+      );
+      if (isViewingChatRoom) return;
+      toast.success(`${message.sender.nickname}: ${message.content}`);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
     });
 
     // 채팅방 입장 이벤트 (기존 유지)

@@ -25,7 +25,6 @@ import Redis from 'ioredis';
     origin: process.env.FRONTEND_URL,
     credentials: true,
   },
-  namespace: '/chat',
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -68,6 +67,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const userSocketKey = `user:sockets:${client.data.userId}`;
 
+      // 본인방 생성
+      const personalRoom = `user_${client.data.userId}`;
+      await client.join(personalRoom);
+      this.logger.log(`User joined personal room: ${personalRoom}`);
+
       // 4. Redis에 소켓 정보 저장
       await this.redisClient.sadd(userSocketKey, client.id);
       await this.redisClient.expire(userSocketKey, 86400); // 24시간 TTL
@@ -78,7 +82,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // 첫 번째 소켓 연결 = 온라인 상태로 전환
         await this.redisClient.sadd('online_users', client.data.userId);
         const onlineCount = await this.redisClient.scard('online_users');
-
         this.logger.log(
           `✅ User ${client.data.userId} is now ONLINE (socket: ${client.id}, total online: ${onlineCount})`,
         );
