@@ -27,6 +27,14 @@
     },
     "dev": {
       "dependsOn": ["^build"],
+      "env": [
+        "PORT",
+        "FRONTEND_URL",
+        "REDIS_HOST",
+        "REDIS_PORT",
+        "BUILD_ENV",
+        "JWT_SECRET"
+      ],
       "cache": false,
       "persistent": true
     },

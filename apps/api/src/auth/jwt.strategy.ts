@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { PrismaService } from "../prisma/prisma.service";
-import type { AuthenticatedUser } from "@repo/types";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PrismaService } from '../prisma/prisma.service';
+import type { AuthenticatedUser } from '@repo/types';
 
 /**
  * JWT 인증 전략 클래스
@@ -19,12 +19,12 @@ import type { AuthenticatedUser } from "@repo/types";
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
     // 환경변수에서 JWT_SECRET 가져오기
-    const jwtSecret = configService.get<string>("JWT_SECRET");
+    const jwtSecret = configService.get<string>('JWT_SECRET');
     if (!jwtSecret) {
-      throw new Error("JWT_SECRET is not defined in environment variables");
+      throw new Error('JWT_SECRET is not defined in environment variables');
     }
 
     // Passport JWT Strategy 설정
@@ -63,7 +63,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!user) {
-      throw new UnauthorizedException("사용자를 찾을 수 없습니다");
+      throw new UnauthorizedException('사용자를 찾을 수 없습니다');
     }
 
     return {

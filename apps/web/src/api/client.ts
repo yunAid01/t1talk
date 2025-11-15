@@ -4,8 +4,12 @@ import toast from 'react-hot-toast';
 //redux
 import { store } from '@/store/store';
 
+const isServer = typeof window === 'undefined';
+
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: isServer
+    ? process.env.INTERNAL_API_URL
+    : process.env.NEXT_PUBLIC_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
