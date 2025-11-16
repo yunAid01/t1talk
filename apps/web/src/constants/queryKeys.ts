@@ -14,6 +14,9 @@ export const QUERY_KEYS = {
   USER: {
     DETAILS: (userId: number) => ['userDetails', userId],
   },
+  MYPROFILE: {
+    DETAILS: ['myProfile'],
+  },
   MESSAGE: {
     LIST: (chatRoomId: number) => ['messages', chatRoomId],
   },

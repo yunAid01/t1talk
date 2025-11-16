@@ -90,7 +90,7 @@ export class FriendService {
     return notMyFriends;
   }
 
-  /** 특정 친구 자세히보기 */
+  /** 특정 인물 자세히보기 */
   async findFriendDetails(userId: number, friendId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: friendId },

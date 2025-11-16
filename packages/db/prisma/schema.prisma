@@ -18,6 +18,10 @@ model User {
   backgroundImageUrl String?
   statusMessage   String?
   createdAt       DateTime       @default(now())
+  isMessageNotificationOn Boolean @default(true)
+  isFriendNotificationOn  Boolean @default(true)
+  isGroupInvitationNotificationOn Boolean @default(true)
+  isPrivate       Boolean       @default(false)
   
   // Relations
   friends         Friend[]       @relation("UserFriends")

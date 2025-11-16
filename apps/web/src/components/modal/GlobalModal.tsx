@@ -20,6 +20,9 @@ import DeleteChatRoomConfirmModal from './confirm-modal/DeleteChatRoomConfirmMod
 // message
 import DeleteMessageConfirmModal from './confirm-modal/DeleteMessageConfirmModal';
 import ModalLayout from './ModalLayout';
+import UpdateUserConfirmModal from './confirm-modal/UpdateUserConfirmModal';
+import DeleteUserConfirmModal from './confirm-modal/DeleteUserConfirmModal';
+import UpdatePasswordConfirmModal from './confirm-modal/UpdatePasswordConfirmModal';
 
 export default function GlobalModal() {
   const dispatch: AppDispatch = useDispatch();
@@ -37,6 +40,9 @@ export default function GlobalModal() {
     // user
     USER_FIND: UserFindModal,
     USER_DETAIL: UserDetailModal,
+    USER_UPDATE: UpdateUserConfirmModal,
+    USER_DELETE: DeleteUserConfirmModal,
+    PASSWORD_UPDATE: UpdatePasswordConfirmModal,
 
     // confirm
     LOGOUT_CONFIRM: LogoutConfirmModal,
