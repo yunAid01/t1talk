@@ -12,6 +12,7 @@ import UserCard from '../../user/UserCard';
 import Loading from '../../common/Loding';
 import Error from '../../common/Error';
 import OnlineIndicator from '../../common/OnlineIndicator';
+import NotFound from '@/components/common/NotFound';
 
 export default function UserFindModal() {
   const { isUserOnline } = useSocket();
@@ -73,35 +74,12 @@ export default function UserFindModal() {
                 {/* 온라인 상태 표시 */}
                 <div className="relative">
                   <UserCard user={user} />
-                  {isUserOnline(user.id) && <OnlineIndicator />}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-12 px-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-900/20 to-gray-900/20 rounded-full flex items-center justify-center mb-4">
-              <svg
-                className="w-10 h-10 text-red-700/50"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </div>
-            <p className="text-gray-400 text-center font-medium mb-2">
-              No players available
-            </p>
-            <p className="text-gray-600 text-sm text-center">
-              All players are already in your friend list!
-            </p>
-          </div>
+          <NotFound message="No players found to add..." />
         )}
       </div>
     </div>

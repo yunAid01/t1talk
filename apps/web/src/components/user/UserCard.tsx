@@ -12,16 +12,22 @@ import OnlineIndicator from '../common/OnlineIndicator';
 import { IMAGE_URL } from '@/constants/imageUrl';
 
 interface UserCardProps {
+  isFriend?: boolean;
   isFavorite?: boolean;
   user: {
     id: number;
     nickname: string;
+    backgroundImageUrl?: string | null;
     profileImageUrl?: string | null; // 2. 프로필 이미지 URL (선택적)
     statusMessage?: string | null; // 3. 상태 메시지 (선택적)
   };
 }
 
-export default function UserCard({ isFavorite, user }: UserCardProps) {
+export default function UserCard({
+  isFavorite,
+  isFriend,
+  user,
+}: UserCardProps) {
   const { isUserOnline } = useSocket();
 
   const dispatch = useDispatch();
@@ -31,9 +37,22 @@ export default function UserCard({ isFavorite, user }: UserCardProps) {
     );
   };
 
+  const handleNotMyUserDetailModalOpen = () => {
+    dispatch(
+      openModal({
+        modalType: 'NOT_MY_FRIEND_DETAIL',
+        modalProps: { userId: user.id },
+      }),
+    );
+  };
+
   return (
     <div
-      onClick={() => handleUserDetailModalOpen()}
+      onClick={
+        !isFriend
+          ? () => handleNotMyUserDetailModalOpen()
+          : () => handleUserDetailModalOpen()
+      }
       className="flex items-center p-3 space-x-3 cursor-pointer group rounded-lg hover:bg-gray-900/50 transition-colors duration-200 relative overflow-hidden"
     >
       {/* T1 로고 배경 (오른쪽 치우침) */}

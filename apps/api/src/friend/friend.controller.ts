@@ -27,11 +27,40 @@ import {
 export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
-  @ZodResponse({ type: CreateFriendResponseDto })
   @Post(':id')
-  createFriend(@User() user: AuthenticatedUser, @Param('id') friendId: string) {
+  sendFriendRequest(
+    @User() user: AuthenticatedUser,
+    @Param('id') friendId: string,
+  ) {
     const userId = user.id;
-    return this.friendService.createFriend(userId, +friendId);
+    return this.friendService.sendFriendRequest(userId, +friendId);
+  }
+
+  @Delete('request/:id')
+  deleteFriendRequest(
+    @User() user: AuthenticatedUser,
+    @Param('id') friendId: string,
+  ) {
+    const userId = user.id;
+    return this.friendService.deleteFriendRequest(userId, +friendId);
+  }
+
+  @Post(':id/accept')
+  acceptFriendRequest(
+    @User() user: AuthenticatedUser,
+    @Param('id') friendId: string,
+  ) {
+    const userId = user.id;
+    return this.friendService.acceptFriendRequest(userId, +friendId);
+  }
+
+  @Post(':id/reject')
+  rejectFriendRequest(
+    @User() user: AuthenticatedUser,
+    @Param('id') friendId: string,
+  ) {
+    const userId = user.id;
+    return this.friendService.rejectFriendRequest(userId, +friendId);
   }
 
   @Patch(':id/favorite')
@@ -49,6 +78,12 @@ export class FriendController {
     return this.friendService.toggleBlock(userId, +friendId);
   }
 
+  @Get('requests')
+  findFriendRequests(@User() user: AuthenticatedUser) {
+    const userId = user.id;
+    return this.friendService.findFriendRequests(userId);
+  }
+
   @ZodResponse({ type: MyFriendsResponseDto })
   @Get('my')
   findMyFriends(@User() user: AuthenticatedUser) {
@@ -61,6 +96,15 @@ export class FriendController {
   findNotMyFriends(@User() user: AuthenticatedUser) {
     const userId = user.id;
     return this.friendService.findNotMyFriends(userId);
+  }
+
+  @Get('not-my/:id')
+  findNotMyFriendDetails(
+    @User() user: AuthenticatedUser,
+    @Param('id') otherId: string,
+  ) {
+    const userId = user.id;
+    return this.friendService.findNotMyFriendDetails(userId, +otherId);
   }
 
   @ZodResponse({ type: FriendDetailsResponseDto })

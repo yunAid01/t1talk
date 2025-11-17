@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateNotificationOn } from '@/api/user';
 import { QUERY_KEYS } from '@/constants/queryKeys';
-import { getUserProfileResponseType } from '@repo/validation';
+import { getUserProfileResponseType, NotificationType } from '@repo/validation';
 import { toast } from 'react-hot-toast';
 
 export const useUpdateNotificationOnMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (type: 'message' | 'friendRequest' | 'groupInvitation') =>
-      updateNotificationOn(type),
+    mutationFn: (type: NotificationType) => updateNotificationOn(type),
     onMutate: async (type) => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.MYPROFILE.DETAILS,
@@ -38,17 +37,17 @@ export const useUpdateNotificationOnMutation = () => {
       );
       return { previousProfile };
     },
-    onSuccess: () => {
-      toast.success(`notification updated successfully`);
+    onSuccess: (res) => {
+      toast.success(`notification updated : ${res.message}`);
     },
-    onError: (_error, types, context) => {
+    onError: (_error, type, context) => {
       if (context?.previousProfile) {
         queryClient.setQueryData(
           QUERY_KEYS.MYPROFILE.DETAILS,
           context.previousProfile,
         );
       }
-      toast.error(`Failed to update ${types} notification`);
+      toast.error(`Failed to update ${type} notification`);
     },
   });
 };

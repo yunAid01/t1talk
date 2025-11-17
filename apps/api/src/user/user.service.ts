@@ -6,6 +6,9 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   getUserProfileResponseType,
+  NotificationType,
+  NotificationUpdateResponseType,
+  PrivacyUpdateResponseType,
   updateUserInputType,
   updateUserResponseType,
 } from '@repo/validation';
@@ -56,7 +59,7 @@ export class UserService {
     return { message: 'Password updated successfully' };
   }
 
-  async updatePrivacy(userId: number) {
+  async updatePrivacy(userId: number): Promise<PrivacyUpdateResponseType> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -77,8 +80,15 @@ export class UserService {
 
   async updateNotificationOn(
     userId: number,
-    type: 'message' | 'friendRequest' | 'groupInvitation',
-  ) {
+    type: NotificationType,
+  ): Promise<NotificationUpdateResponseType> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const fieldMap = {
       message: 'isMessageNotificationOn',
       friendRequest: 'isFriendNotificationOn',
@@ -86,12 +96,6 @@ export class UserService {
     };
 
     const field = fieldMap[type];
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
 
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
@@ -100,7 +104,6 @@ export class UserService {
       },
     });
     return {
-      type: type,
       message: 'Notification setting updated successfully',
       [field]: updatedUser[field],
     };

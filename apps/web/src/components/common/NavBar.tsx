@@ -1,6 +1,12 @@
 'use client';
 
-import { Users, MessageSquare, Settings, LogOutIcon } from 'lucide-react';
+import {
+  Users,
+  UserPlus,
+  MessageSquare,
+  Settings,
+  LogOutIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -15,6 +21,14 @@ export default function NavBar() {
   const currentUser = useSelector((state: AppState) =>
     selectCurrentUser(state),
   );
+
+  const handleMyFriendRequestModalOpen = () => {
+    dispatch(
+      openModal({
+        modalType: 'FIND_REQUEST',
+      }),
+    );
+  };
 
   const handleMyProfileOpen = () => {
     dispatch(
@@ -67,6 +81,13 @@ export default function NavBar() {
             <Users size={28} />
           </button>
         </Link>
+
+        <button
+          onClick={handleMyFriendRequestModalOpen}
+          className="text-gray-400 hover:text-white"
+        >
+          <UserPlus size={28} />
+        </button>
 
         {/* 채팅 아이콘 */}
         <Link href={'/chatroom'}>

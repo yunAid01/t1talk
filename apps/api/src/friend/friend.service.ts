@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,25 +10,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   MyFriendsResponseType,
   NotMyFriendsResponseType,
-  CreateFriendResponseType,
 } from '@repo/validation';
 
 @Injectable()
 export class FriendService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // todo - 친구 추가
-  async createFriend(
-    userId: number,
-    friendId: number,
-  ): Promise<CreateFriendResponseType> {
-    const friend = await this.prisma.friend.create({
-      data: {
-        userId: userId,
-        friendId: friendId,
-      },
+  async findFriendRequests(userId: number) {
+    const friendRequests = await this.prisma.friendRequest.findMany({
+      where: { receiverId: userId },
       include: {
-        friend: {
+        sender: {
           select: {
             id: true,
             nickname: true,
@@ -38,8 +31,104 @@ export class FriendService {
         },
       },
     });
+    return friendRequests.map((request) => ({
+      id: request.sender.id,
+      nickname: request.sender.nickname,
+      profileImageUrl: request.sender.profileImageUrl,
+      backgroundImageUrl: request.sender.backgroundImageUrl,
+      statusMessage: request.sender.statusMessage,
+    }));
+  }
 
-    return friend;
+  async sendFriendRequest(userId: number, friendId: number) {
+    const friend = await this.prisma.friend.findUnique({
+      where: {
+        userId_friendId: { userId, friendId },
+      },
+    });
+    if (friend) {
+      throw new BadRequestException('이미 친구 관계입니다.');
+    }
+    const existingRequest = await this.prisma.friendRequest.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: friendId,
+      },
+    });
+    if (existingRequest) {
+      throw new BadRequestException('이미 친구 요청을 보냈습니다.');
+    }
+    const newFriendRequest = await this.prisma.friendRequest.create({
+      data: {
+        senderId: userId,
+        receiverId: friendId,
+      },
+    });
+    return newFriendRequest;
+  }
+
+  /** 친구추가 요청 취소하기 */
+  async deleteFriendRequest(userId: number, friendId: number) {
+    const existingRequest = await this.prisma.friendRequest.findUnique({
+      where: {
+        senderId_receiverId: {
+          senderId: userId,
+          receiverId: friendId,
+        },
+      },
+    });
+    if (!existingRequest) {
+      throw new NotFoundException('Friend request not found.');
+    }
+    await this.prisma.friendRequest.delete({
+      where: {
+        senderId_receiverId: {
+          senderId: userId,
+          receiverId: friendId,
+        },
+      },
+    });
+    return {
+      message: 'Friend request deleted successfully.',
+    };
+  }
+
+  // todo - 친구 추가
+  async acceptFriendRequest(userId: number, friendId: number) {
+    await this.prisma.$transaction(async (transaction) => {
+      await transaction.friendRequest.delete({
+        where: {
+          senderId_receiverId: {
+            senderId: friendId,
+            receiverId: userId,
+          },
+        },
+      });
+      await transaction.friend.createMany({
+        data: [
+          {
+            // 양방향 친구관계
+            userId: userId,
+            friendId: friendId,
+          },
+          {
+            userId: friendId,
+            friendId: userId,
+          },
+        ],
+      });
+    });
+  }
+
+  async rejectFriendRequest(userId: number, friendId: number) {
+    await this.prisma.friendRequest.delete({
+      where: {
+        senderId_receiverId: {
+          senderId: friendId,
+          receiverId: userId,
+        },
+      },
+    });
   }
 
   /** 내친구 찾기 */
@@ -65,7 +154,7 @@ export class FriendService {
     return friends;
   }
 
-  /** 내 친구가 아닌 친구 찾기 */
+  /** 내 친구가 아닌 친구 리스트 찾기 */
   async findNotMyFriends(userId: number): Promise<NotMyFriendsResponseType> {
     const myFriends = await this.prisma.friend.findMany({
       where: { userId: userId },
@@ -90,7 +179,47 @@ export class FriendService {
     return notMyFriends;
   }
 
-  /** 특정 인물 자세히보기 */
+  /** 내 친구 아닌 친구 상세 보기 */
+  async findNotMyFriendDetails(userId: number, otherId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: otherId },
+      select: {
+        id: true,
+        nickname: true,
+        profileImageUrl: true,
+        backgroundImageUrl: true,
+        statusMessage: true,
+        isPrivate: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+    const existingMyFriendRequest = await this.prisma.friendRequest.findUnique({
+      where: {
+        senderId_receiverId: {
+          senderId: userId,
+          receiverId: otherId,
+        },
+      },
+    });
+    const existingOtherFriendRequest =
+      await this.prisma.friendRequest.findUnique({
+        where: {
+          senderId_receiverId: {
+            senderId: otherId,
+            receiverId: userId,
+          },
+        },
+      });
+    return {
+      ...user,
+      hasSentFriendRequest: !!existingMyFriendRequest,
+      hasReceivedFriendRequest: !!existingOtherFriendRequest,
+    };
+  }
+
+  /** 내 친구 자세히보기 */
   async findFriendDetails(userId: number, friendId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: friendId },

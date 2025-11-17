@@ -7,7 +7,7 @@ import { closeModal } from '@/store/features/modalSlice';
 // Modal components
 // friends
 import DeleteFriendConfirmModal from './confirm-modal/DeleteFriendConfirmModal';
-import CreateFriendConfirmModal from './confirm-modal/CreateFriendConfirmModal';
+import FriendRequestAcceptConfirmModal from './confirm-modal/FriendRequestAcceptConfirmModal';
 import DeleteBlockConfirmModal from './confirm-modal/DeleteBlockConfirmModal';
 import CreateBlockConfirmModal from './confirm-modal/CreateBlockConfirmModal';
 // user
@@ -23,6 +23,10 @@ import ModalLayout from './ModalLayout';
 import UpdateUserConfirmModal from './confirm-modal/UpdateUserConfirmModal';
 import DeleteUserConfirmModal from './confirm-modal/DeleteUserConfirmModal';
 import UpdatePasswordConfirmModal from './confirm-modal/UpdatePasswordConfirmModal';
+import SendFriendRequestConfirmModal from './confirm-modal/SendFriendRequestConfirmModal';
+import FindFriendRequestModal from './friend-modal/FindFriendRequestModal';
+import DeleteFriendRequestConfirmModal from './confirm-modal/DeleteFriendRequestConfirmModal';
+import NotMyUserDetailModal from './user-modal/NotMyUserDetailModal';
 
 export default function GlobalModal() {
   const dispatch: AppDispatch = useDispatch();
@@ -44,10 +48,18 @@ export default function GlobalModal() {
     USER_DELETE: DeleteUserConfirmModal,
     PASSWORD_UPDATE: UpdatePasswordConfirmModal,
 
+    // friend_request
+    FIND_REQUEST: FindFriendRequestModal,
+    FRIEND_REQUEST_SEND: SendFriendRequestConfirmModal,
+    FRIEND_REQUEST_DELETE: DeleteFriendRequestConfirmModal,
+    FRIEND_REQUEST_ACCEPT: FriendRequestAcceptConfirmModal, // 친구 요청 수락 & 거절
+
+    // not my friend detail
+    NOT_MY_FRIEND_DETAIL: NotMyUserDetailModal,
+
     // confirm
     LOGOUT_CONFIRM: LogoutConfirmModal,
-    FRIEND_CREATE: CreateFriendConfirmModal,
-    FRIEND_DELETE: DeleteFriendConfirmModal,
+    FRIEND_DELETE: DeleteFriendConfirmModal, // 친구 삭제
     MESSAGE_DELETE: DeleteMessageConfirmModal,
     BLOCK_CREATE: CreateBlockConfirmModal,
     BLOCK_DELETE: DeleteBlockConfirmModal,

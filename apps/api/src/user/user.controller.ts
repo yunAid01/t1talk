@@ -13,6 +13,8 @@ import {
   updateUserDto,
   updateUserResponseDto,
   getUserProfileResponseDto,
+  NotificationUpdateResponseDto,
+  PrivacyUpdateResponseDto,
 } from './dto/update-user.dto';
 import { User } from '@/auth/decorator/user';
 import type { AuthenticatedUser } from '@repo/types';
@@ -33,6 +35,7 @@ export class UserController {
     return this.userService.updateMyProfile(user.id, updateData);
   }
 
+  @ZodResponse({ type: NotificationUpdateResponseDto })
   @Patch('notification')
   updateNotificationOn(
     @User() user: AuthenticatedUser,
@@ -41,6 +44,7 @@ export class UserController {
     return this.userService.updateNotificationOn(user.id, typeData.type);
   }
 
+  @ZodResponse({ type: PrivacyUpdateResponseDto })
   @Patch('privacy')
   updatePrivacy(@User() user: AuthenticatedUser) {
     return this.userService.updatePrivacy(user.id);

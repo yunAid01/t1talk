@@ -1,20 +1,26 @@
 'use client';
 
-// hooks
-
 import { AppState } from '@/store/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeModal } from '@/store/features/modalSlice';
-import { useCreateFriendMutation } from '@/hooks/friend/useCreateFriendMutation';
 
-export default function CreateFriendConfirmModal() {
+// hooks
+import { useAcceptFriendRequestMutation } from '@/hooks/friend/useAcceptFriendReqeustMutation';
+import { useRejectFriendRequestMutation } from '@/hooks/friend/useRejectFriendRequestMutation';
+
+export default function FriendRequestAcceptConfirmModal() {
   const dispatch = useDispatch();
   const modalProps = useSelector((state: AppState) => state.modal.modalProps);
   const userId: number = modalProps?.userId;
-  const { mutate: createFriend } = useCreateFriendMutation();
+  const { mutate: acceptFriendRequest } = useAcceptFriendRequestMutation();
+  const { mutate: rejectFriendRequest } = useRejectFriendRequestMutation();
 
-  const handleCreate = () => {
-    createFriend(userId);
+  const handleAccept = () => {
+    acceptFriendRequest(userId);
+  };
+
+  const handleReject = () => {
+    rejectFriendRequest(userId);
   };
 
   const handleCancel = () => {
@@ -44,7 +50,7 @@ export default function CreateFriendConfirmModal() {
 
       {/* 제목 */}
       <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent mb-2">
-        Add Friend
+        Friend Request
       </h2>
 
       {/* 설명 */}
@@ -61,10 +67,16 @@ export default function CreateFriendConfirmModal() {
           Cancel
         </button>
         <button
-          onClick={handleCreate}
+          onClick={handleReject}
           className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg shadow-red-900/50 transition-all duration-200 hover:scale-105"
         >
-          Add Friend
+          reject Friend
+        </button>
+        <button
+          onClick={handleAccept}
+          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg shadow-red-900/50 transition-all duration-200 hover:scale-105"
+        >
+          accept Friend
         </button>
       </div>
     </div>

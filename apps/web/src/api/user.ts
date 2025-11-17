@@ -1,6 +1,9 @@
 import apiClient from './client';
 import type {
   getUserProfileResponseType,
+  NotificationType,
+  NotificationUpdateResponseType,
+  PrivacyUpdateResponseType,
   updateUserInputType,
   updateUserResponseType,
 } from '@repo/validation';
@@ -20,16 +23,10 @@ export const updateUser = async (
   return response;
 };
 
-export interface NotificationUpdateResponse {
-  message: string;
-  isMessageNotificationOn?: boolean;
-  isFriendNotificationOn?: boolean;
-  isGroupInvitationNotificationOn?: boolean;
-}
 export const updateNotificationOn = async (
-  type: 'message' | 'friendRequest' | 'groupInvitation',
-): Promise<NotificationUpdateResponse> => {
-  const response: NotificationUpdateResponse = await apiClient.patch(
+  type: NotificationType,
+): Promise<NotificationUpdateResponseType> => {
+  const response: NotificationUpdateResponseType = await apiClient.patch(
     '/user/notification',
     {
       type,
@@ -38,12 +35,8 @@ export const updateNotificationOn = async (
   return response;
 };
 
-export interface PrivacyUpdateResponse {
-  message: string;
-  isPrivate: boolean;
-}
-export const updatePrivacy = async (): Promise<PrivacyUpdateResponse> => {
-  const response: PrivacyUpdateResponse =
+export const updatePrivacy = async (): Promise<PrivacyUpdateResponseType> => {
+  const response: PrivacyUpdateResponseType =
     await apiClient.patch('/user/privacy');
   return response;
 };

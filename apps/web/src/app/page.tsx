@@ -91,6 +91,7 @@ export default function Home() {
                   {/* 왼쪽 레드 라인 액센트 */}
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-600 to-red-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <UserCard
+                    isFriend={true}
                     isFavorite={friend.isFavorite}
                     user={friend.friend}
                   />

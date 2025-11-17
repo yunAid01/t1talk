@@ -26,8 +26,34 @@ export const updateUserResponseSchema = z.object({
   updatedData: updateUserInputSchema,
 });
 
+/** type message | groupInvitation | friendRequest */
+export const notificationSchema = z.enum([
+  'message',
+  'friendRequest',
+  'groupInvitation',
+]);
+export const NotificationUpdateResponseSchema = z.object({
+  message: z.string(),
+  isMessageNotificationOn: z.boolean().optional(),
+  isFriendNotificationOn: z.boolean().optional(),
+  isGroupInvitationNotificationOn: z.boolean().optional(),
+});
+
+/** update privacy */
+export const PrivacyUpdateResponseSchema = z.object({
+  message: z.string(),
+  isPrivate: z.boolean(),
+});
+
 export type updateUserInputType = z.infer<typeof updateUserInputSchema>;
 export type getUserProfileResponseType = z.infer<
   typeof getUserProfileResponseSchema
 >;
 export type updateUserResponseType = z.infer<typeof updateUserResponseSchema>;
+export type NotificationUpdateResponseType = z.infer<
+  typeof NotificationUpdateResponseSchema
+>;
+export type NotificationType = z.infer<typeof notificationSchema>;
+export type PrivacyUpdateResponseType = z.infer<
+  typeof PrivacyUpdateResponseSchema
+>;

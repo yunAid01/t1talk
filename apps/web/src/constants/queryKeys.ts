@@ -1,9 +1,12 @@
 export const QUERY_KEYS = {
   FRIENDS: {
+    LIST_REQUEST: ['friendRequests'],
+    ADD_REQUEST: ['sendFriendRequests'],
     LIST: ['myFriends'],
     DETAILS: (friendId: number) => ['userDetails', friendId],
   },
   NOTMYFRIENDS: {
+    DETAILS: (userId: number) => ['notMyFriendDetails', userId],
     LIST: ['notMyFriends'],
   },
   CHAT_ROOMS: {

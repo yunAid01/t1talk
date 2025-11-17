@@ -49,10 +49,13 @@ export default function UserDetailModal() {
   const { mutate: createFavoriteMutate } = useCreateFavoriteMutation(userId);
   const { mutate: deleteFavoriteMutate } = useDeleteFavoriteMutation(userId);
 
-  // 친구 추가 핸들러
-  const handleAddFriend = async () => {
+  // 친구 추가 요청 보내기 핸들러
+  const handleSendFriend = async () => {
     dispatch(
-      openModal({ modalType: 'FRIEND_CREATE', modalProps: { userId: userId } }),
+      openModal({
+        modalType: 'FRIEND_REQUEST_SEND',
+        modalProps: { userId: userId },
+      }),
     );
   };
 
@@ -89,7 +92,6 @@ export default function UserDetailModal() {
 
   // 채팅창 생성
   const handleCreateChatRoom = () => {
-    console.log(`채팅창 생성 요청: ${userId}`);
     createChatRoomMutate(userId);
   };
 
@@ -184,9 +186,9 @@ export default function UserDetailModal() {
             <>
               {!userDetails.isFriend ? (
                 <UserDetailActionButton
-                  text="ADD FRIEND"
+                  text="SEND FRIEND REQUEST"
                   variant="add"
-                  onClick={() => handleAddFriend()}
+                  onClick={() => handleSendFriend()}
                   className="w-full px-4 py-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 border border-gray-700 hover:border-gray-600 shadow-lg hover:shadow-xl"
                 />
               ) : (

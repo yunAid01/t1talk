@@ -26,6 +26,8 @@ import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 import { useUpdateNotificationOnMutation } from '@/hooks/user/useUpdateNotificationMutation';
 import { useUpdatePrivacyMutation } from '@/hooks/user/useUpdatePrivacyMutation';
+import { QUERY_KEYS } from '@/constants/queryKeys';
+import { NotificationType } from 'node_modules/@repo/validation/dist/user';
 
 export default function ConfigPage() {
   const { mutate: updateNotificationMutate } =
@@ -54,7 +56,7 @@ export default function ConfigPage() {
     isError,
     error,
   } = useQuery({
-    queryKey: ['myProfile'],
+    queryKey: QUERY_KEYS.MYPROFILE.DETAILS,
     queryFn: getMyProfile,
   });
 
@@ -82,9 +84,7 @@ export default function ConfigPage() {
     dispatch(openModal({ modalType: 'LOGOUT_CONFIRM' }));
   };
 
-  const handleNotificationChange = (
-    type: 'message' | 'friendRequest' | 'groupInvitation',
-  ) => {
+  const handleNotificationChange = (type: NotificationType) => {
     updateNotificationMutate(type);
   };
 
@@ -129,7 +129,13 @@ export default function ConfigPage() {
   }
 
   if (isError) {
-    return <Error error={error} message="Failed to load config page." />;
+    return (
+      <Error
+        error={error}
+        onRetry={() => window.location.reload()}
+        message="Failed to load config page."
+      />
+    );
   }
 
   return (
@@ -207,7 +213,6 @@ export default function ConfigPage() {
                             ) => setNickname(e.target.value)}
                             name="nickname"
                             placeholder="Nickname"
-                            defaultValue={currentUser.nickname || ''}
                             labelText="Nickname"
                             inputType="text"
                           />
@@ -218,7 +223,6 @@ export default function ConfigPage() {
                             ) => setStatusMessage(e.target.value)}
                             name="statusMessage"
                             placeholder="make id cool!"
-                            defaultValue={currentUser.statusMessage || ''}
                             labelText="Status Message"
                             inputType="text"
                           />
@@ -229,7 +233,6 @@ export default function ConfigPage() {
                             ) => setEmail(e.target.value)}
                             name="email"
                             placeholder="Email"
-                            defaultValue={currentUser.email || ''}
                             labelText="Email"
                             inputType="email"
                           />
