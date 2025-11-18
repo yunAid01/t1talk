@@ -1,6 +1,6 @@
 import { MessageSquarePlus } from 'lucide-react';
 
-export default function ChatroomModalHeader() {
+export default function CreateChatroomModalHeader() {
   return (
     <div className="relative border-b border-red-900/30 bg-gradient-to-r from-red-900/20 to-transparent px-6 py-5">
       <div className="flex items-center gap-3 mb-2">
@@ -11,9 +11,7 @@ export default function ChatroomModalHeader() {
           NEW CHAT
         </h2>
       </div>
-      <p className="text-gray-500 text-sm">
-        Select friends to start a conversation
-      </p>
+      <p className="text-gray-500 text-sm"></p>
     </div>
   );
 }

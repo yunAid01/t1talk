@@ -1,47 +1,37 @@
+import { AlertCircle } from 'lucide-react';
+
 interface NotFoundProps {
   message?: string;
   description?: string;
-  iconSize?: 'sm' | 'md' | 'lg';
+  icon?: React.ReactElement;
 }
-
 export default function NotFound({
   message = 'Not Found',
   description,
-  iconSize = 'md',
+  icon = <AlertCircle className="text-white" />,
 }: NotFoundProps) {
-  const sizeClasses = {
-    sm: { container: 'w-12 h-12', icon: 'w-6 h-6' },
-    md: { container: 'w-20 h-20', icon: 'w-10 h-10' },
-    lg: { container: 'w-28 h-28', icon: 'w-14 h-14' },
-  };
-
-  const size = sizeClasses[iconSize];
-
   return (
-    <div className="flex flex-col items-center justify-center py-12">
-      <div
-        className={`${size.container} bg-red-900/20 rounded-full flex items-center justify-center mb-4`}
-      >
-        <svg
-          className={`${size.icon} text-red-600`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
+    <div className={`flex flex-col items-center justify-center py-12 px-6`}>
+      {/* 아이콘 컨테이너 - T1 스타일 글로우 효과 */}
+      <div className="relative mb-6">
+        {/* 배경 글로우 */}
+        <div className="absolute -inset-4 bg-gradient-to-r from-red-600/20 to-red-800/20 rounded-full blur-xl"></div>
+
+        {/* 아이콘 배경 */}
+        <div className="relative w-20 h-20 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center border border-red-900/30">
+          {icon}
+        </div>
       </div>
-      <p className="text-gray-400 text-lg font-semibold mb-2">{message}</p>
-      {description && (
-        <p className="text-gray-500 text-sm text-center max-w-md">
-          {description}
-        </p>
-      )}
+
+      {/* 텍스트 영역 */}
+      <div className="text-center max-w-md">
+        <h3 className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent mb-2">
+          {message}
+        </h3>
+        {description && (
+          <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+        )}
+      </div>
     </div>
   );
 }

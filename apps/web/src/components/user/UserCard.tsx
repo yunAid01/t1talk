@@ -12,6 +12,7 @@ import OnlineIndicator from '../common/OnlineIndicator';
 import { IMAGE_URL } from '@/constants/imageUrl';
 
 interface UserCardProps {
+  modalName?: string;
   isFriend?: boolean;
   isFavorite?: boolean;
   user: {
@@ -24,6 +25,7 @@ interface UserCardProps {
 }
 
 export default function UserCard({
+  modalName,
   isFavorite,
   isFriend,
   user,
@@ -41,7 +43,7 @@ export default function UserCard({
     dispatch(
       openModal({
         modalType: 'NOT_MY_FRIEND_DETAIL',
-        modalProps: { userId: user.id },
+        modalProps: { userId: user.id, modalName: modalName },
       }),
     );
   };

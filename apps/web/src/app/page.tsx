@@ -15,6 +15,8 @@ import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 import { QUERY_KEYS } from '@/constants/queryKeys';
 import NotFound from '@/components/common/NotFound';
+import MainHeader from '@/components/common/MainHeader';
+import { User2Icon } from 'lucide-react';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -36,10 +38,6 @@ export default function Home() {
     initialData: [],
   });
 
-  const handleOpenFindUserModal = () => {
-    dispatch(openModal({ modalType: 'USER_FIND' }));
-  };
-
   if (isLoading) {
     return <Loading message="친구 목록 불러오는 중..." />;
   }
@@ -55,29 +53,13 @@ export default function Home() {
 
   return (
     <div className="h-full bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      {/* 헤더 영역 */}
-      <div className="border-b border-red-900/30 bg-black/50 backdrop-blur-sm">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
-                FRIENDS OF T1
-              </h1>
-              <p className="text-gray-500 text-sm mt-1">
-                {friends.length} members online
-              </p>
-            </div>
-            <button
-              className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg shadow-red-900/50 transition-all duration-200 hover:scale-105"
-              onClick={() => handleOpenFindUserModal()}
-            >
-              + ADD FRIEND
-            </button>
-          </div>
-        </div>
-      </div>
+      <MainHeader
+        title="Friends of T1"
+        text={`${friends.length} members online`}
+      />
 
       {/* 친구 목록 영역 */}
+
       <div className="px-6 py-6">
         {friends.filter((friend) => friend.isBlocked === false).length > 0 ? (
           <div className="max-w-2xl min-w-[320px] mx-auto space-y-3">
@@ -100,6 +82,7 @@ export default function Home() {
           </div>
         ) : (
           <NotFound
+            icon={<User2Icon size={48} />}
             message="No friends yet"
             description="Start by adding some friends to chat!"
           />

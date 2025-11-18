@@ -14,7 +14,7 @@ import {
 } from '@/hooks/chatroom/useCreateChatroomMutation';
 
 // components
-import ChatroomModalHeader from './ChatroomModalHeader';
+import CreateChatroomModalHeader from './CreateChatroomModalHeader';
 import ChatroomModalFriendsList from './ChatroomModalFriendsList';
 
 export default function CreateChatroomModal() {
@@ -22,7 +22,7 @@ export default function CreateChatroomModal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [groupName, setGroupName] = useState('');
 
-  const { data: friends, isLoading } = useQuery<MyFriendsResponseType>({
+  const { data: myFriends, isLoading } = useQuery<MyFriendsResponseType>({
     queryKey: QUERY_KEYS.FRIENDS.LIST,
     queryFn: findFriends,
     initialData: [],
@@ -40,26 +40,26 @@ export default function CreateChatroomModal() {
     );
   };
 
-  const filteredFriends = friends?.filter((f) =>
+  const filteredFriends = myFriends?.filter((f) =>
     f.friend.nickname.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleCreate = () => {
     if (selectedFriends.length !== 0 && selectedFriends.length > 1) {
       createGroupChatRoomMutate({
+        // group
         friendIds: selectedFriends,
         name: groupName || undefined,
-      }); // group
+      });
     } else if (selectedFriends.length === 1) {
-      createChatRoomMutate(selectedFriends[0]!); // 1:1
+      // 1:1
+      createChatRoomMutate(selectedFriends[0]!);
     }
-    console.log('Creating chat with:', selectedFriends);
-    console.log('Group name:', groupName);
   };
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl overflow-hidden border border-red-900/30">
-      <ChatroomModalHeader />
+      <CreateChatroomModalHeader />
 
       {/* 컨텐츠 */}
       <div className="p-6">

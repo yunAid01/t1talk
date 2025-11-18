@@ -5,6 +5,7 @@ import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 import UserCard from '@/components/user/UserCard';
 import NotFound from '@/components/common/NotFound';
+import { UserCircle } from 'lucide-react';
 
 export default function FindFriendRequestModal() {
   const {
@@ -33,11 +34,19 @@ export default function FindFriendRequestModal() {
       {userToSendFriendRequests && userToSendFriendRequests.length > 0 ? (
         userToSendFriendRequests.map((user) => (
           <div key={user.id}>
-            <UserCard isFriend={false} isFavorite={false} user={user} />
+            <UserCard
+              isFriend={false}
+              isFavorite={false}
+              modalName="FRIEND_REQUEST_MODAL"
+              user={user}
+            />
           </div>
         ))
       ) : (
-        <NotFound message="친구추가를 보낸 유저가 없습니다..." />
+        <NotFound
+          icon={<UserCircle size={48} />}
+          description="친구추가를 보낸 유저가 없습니다..."
+        />
       )}
     </>
   );

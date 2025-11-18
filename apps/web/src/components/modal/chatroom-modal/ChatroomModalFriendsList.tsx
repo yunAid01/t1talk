@@ -1,3 +1,4 @@
+import { IMAGE_URL } from '@/constants/imageUrl';
 import Image from 'next/image';
 
 interface Props {
@@ -37,11 +38,8 @@ export default function ChatroomModalFriendsList({
       {/* 프로필 이미지 */}
       <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-700 mr-3">
         <Image
-          src={
-            friend.friend.profileImageUrl ||
-            '/images/default-profileImage-v2.jpg'
-          }
-          alt={friend.friend.nickname}
+          src={friend.friend.profileImageUrl || IMAGE_URL.DEFAULT.PROFILE}
+          alt={friend.friend.nickname || 'Friend Profile'}
           fill
           sizes="48px"
           className="object-cover"

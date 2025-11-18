@@ -1,8 +1,6 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-// contexts
-import { useSocket } from '@/contexts/SocketContext';
 // api
 import { findNotMyFriends } from '@/api/friend';
 // types
@@ -11,12 +9,10 @@ import { NotMyFriendsResponseType } from '@repo/validation';
 import UserCard from '../../user/UserCard';
 import Loading from '../../common/Loding';
 import Error from '../../common/Error';
-import OnlineIndicator from '../../common/OnlineIndicator';
 import NotFound from '@/components/common/NotFound';
+import { UserCircle } from 'lucide-react';
 
 export default function UserFindModal() {
-  const { isUserOnline } = useSocket();
-
   const {
     data: users,
     isLoading,
@@ -73,13 +69,20 @@ export default function UserFindModal() {
 
                 {/* 온라인 상태 표시 */}
                 <div className="relative">
-                  <UserCard user={user} />
+                  <UserCard
+                    isFriend={false}
+                    modalName="USER_FIND_MODAL"
+                    user={user}
+                  />
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <NotFound message="No players found to add..." />
+          <NotFound
+            icon={<UserCircle size={48} />}
+            message="No players found to add..."
+          />
         )}
       </div>
     </div>

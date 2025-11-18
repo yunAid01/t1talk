@@ -26,6 +26,7 @@ export default function NotMyUserDetailModal() {
   // Redux에서 userId만 가져옴
   const modalProps = useSelector((state: AppState) => state.modal.modalProps);
   const userId: number = modalProps?.userId;
+  const modalName: string = modalProps?.modalName;
 
   const {
     data: notMyFriendDetails,
@@ -143,7 +144,7 @@ export default function NotMyUserDetailModal() {
 
         {/* 액션 버튼들 */}
         <div className="space-y-3">
-          {notMyFriendDetails.hasReceivedFriendRequest && (
+          {modalName === 'FRIEND_REQUEST_MODAL' && (
             <button
               onClick={handleFriendRequestConfirmModalOpen}
               className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-green-900/50 hover:shadow-xl border border-green-800"
@@ -152,21 +153,22 @@ export default function NotMyUserDetailModal() {
             </button>
           )}
 
-          {notMyFriendDetails.hasSentFriendRequest ? (
-            <button
-              onClick={handleDeleteFriendRequest}
-              className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-900/50 hover:shadow-xl border border-red-800"
-            >
-              친구 요청 취소
-            </button>
-          ) : (
-            <button
-              onClick={handleSendFriend}
-              className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50 hover:shadow-xl border border-blue-800"
-            >
-              친구 요청 보내기
-            </button>
-          )}
+          {modalName === 'USER_FIND_MODAL' &&
+            (notMyFriendDetails.hasSentFriendRequest ? (
+              <button
+                onClick={handleDeleteFriendRequest}
+                className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-red-900/50 hover:shadow-xl border border-red-800"
+              >
+                친구 요청 취소
+              </button>
+            ) : (
+              <button
+                onClick={handleSendFriend}
+                className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/50 hover:shadow-xl border border-blue-800"
+              >
+                친구 요청 보내기
+              </button>
+            ))}
         </div>
       </div>
     </div>

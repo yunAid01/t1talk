@@ -60,12 +60,6 @@ export const rejectFriendRequest = async (friendId: number) => {
   return response;
 };
 
-/** 친구추가하기 */
-export const createFriend = async (friendId: number) => {
-  const response = await apiClient.post(`/friend/${friendId}`);
-  return response;
-};
-
 /** 친구 삭제 */
 export const deleteFriend = async (friendId: number) => {
   const response = await apiClient.delete(`/friend/${friendId}`);

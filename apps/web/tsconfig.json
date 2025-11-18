@@ -16,7 +16,8 @@
     "**/*.tsx",
     "next-env.d.ts",
     "next.config.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/components/modal/chatroom-modal/CreateChatroomModalHeader.tsx"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,4 +1,6 @@
 'use client';
+
+import { MessageCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getUserChatRooms } from '@/api/chatroom';
 import {
@@ -8,17 +10,16 @@ import {
 import { QUERY_KEYS } from '@/constants/queryKeys';
 
 // components
-import ChatRoomPageEmptyState from '@/components/chatroom/ChatroomPageEmptyState';
-import ChatRoomPageHeader from '@/components/chatroom/ChatroomPageHeader';
 import ChatRoomPageCard from '@/components/chatroom/ChatroomPageCard';
 import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 
 //redux
 import { useDispatch, useSelector } from 'react-redux';
-import { openModal } from '@/store/features/modalSlice';
 import { findFriends } from '@/api/friend';
 import { selectCurrentUser } from '@/store/features/authSlice';
+import MainHeader from '@/components/common/MainHeader';
+import NotFound from '@/components/common/NotFound';
 
 export default function ConversationsPage() {
   const dispatch = useDispatch();
@@ -53,10 +54,6 @@ export default function ConversationsPage() {
     return result;
   };
 
-  const handleOpenCreateChatroomModal = () => {
-    dispatch(openModal({ modalType: 'CREATE_CHATROOM' }));
-  };
-
   if (isLoadingChatRooms || isLoadingFriends) {
     return <Loading message="Loading conversations..." />;
   }
@@ -82,7 +79,10 @@ export default function ConversationsPage() {
   return (
     <div className="h-full bg-gradient-to-br from-gray-900 via-black to-gray-900">
       {/* 헤더 */}
-      <ChatRoomPageHeader openModal={handleOpenCreateChatroomModal} />
+      <MainHeader
+        title="CONVERSATIONS"
+        text="Select friends to start a conversation"
+      />
       {/* 채팅방 목록 */}
       <div className="px-6 py-6">
         {chatRooms && chatRooms.length > 0 ? (
@@ -105,7 +105,11 @@ export default function ConversationsPage() {
             })}
           </div>
         ) : (
-          <ChatRoomPageEmptyState />
+          <NotFound
+            message="No conversations yet"
+            description="Start a new chat to connect with your friends!"
+            icon={<MessageCircle size={48} />}
+          />
         )}
       </div>
     </div>
