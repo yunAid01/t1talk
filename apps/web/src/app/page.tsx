@@ -8,8 +8,6 @@ import React, { useEffect } from 'react';
 import { findFriends } from '@/api/friend';
 
 // redux
-import { useDispatch } from 'react-redux';
-import { openModal } from '@/store/features/modalSlice';
 import { MyFriendsResponseType } from '@repo/validation';
 import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
@@ -19,7 +17,6 @@ import MainHeader from '@/components/common/MainHeader';
 import { User2Icon } from 'lucide-react';
 
 export default function Home() {
-  const dispatch = useDispatch();
   const router = useRouter();
   useEffect(() => {
     if (!localStorage.getItem('access_token')) {
@@ -59,7 +56,6 @@ export default function Home() {
       />
 
       {/* 친구 목록 영역 */}
-
       <div className="px-6 py-6">
         {friends.filter((friend) => friend.isBlocked === false).length > 0 ? (
           <div className="max-w-2xl min-w-[320px] mx-auto space-y-3">

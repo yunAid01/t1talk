@@ -7,8 +7,9 @@ import { selectCurrentUser } from '@/store/features/authSlice';
 import { MessageType } from '@repo/validation';
 import { usePathname } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/constants/queryKeys';
+import { getMyProfile } from '@/api/user';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -29,6 +30,10 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { data: myData } = useQuery({
+    queryKey: QUERY_KEYS.MYPROFILE.DETAILS,
+    queryFn: () => getMyProfile(),
+  });
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -37,7 +42,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || !myData) return;
 
     const token = localStorage.getItem('access_token');
     if (!token) return;
@@ -87,7 +92,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     // 메세지 수신 알람
-    socketInstance.on('new_notification', (message: MessageType) => {
+    socketInstance.on('message_notification', (message: MessageType) => {
+      if (!myData || !myData.isMessageNotificationOn) return;
       console.log('💬 New message received via socket:', message);
       const isViewingChatRoom = pathname.includes(
         `/chatroom/${message.chatRoomId}`,
@@ -95,6 +101,18 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       if (isViewingChatRoom) return;
       toast.success(`${message.sender.nickname}: ${message.content}`);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
+    });
+
+    // 친구 추가 수신 알람
+    socketInstance.on('new_friend_request', () => {
+      if (!myData || !myData.isFriendNotificationOn) return;
+      toast.success(`새로운 친구 요청이 왔습니다!`);
+    });
+
+    socketInstance.on('friend_request_accepted', () => {
+      if (!myData || !myData.isFriendNotificationOn) return;
+      toast.success(`친구 요청이 수락되었습니다!`);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.FRIENDS.LIST });
     });
 
     // 채팅방 입장 이벤트 (기존 유지)
@@ -119,7 +137,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       socketInstance.disconnect();
     };
-  }, [currentUser]);
+  }, [currentUser, myData]);
 
   const isUserOnline = (userId: number) => onlineUsers.has(userId);
 

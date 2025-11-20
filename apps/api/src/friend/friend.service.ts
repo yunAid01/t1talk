@@ -4,17 +4,21 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 
 // types
 import {
   MyFriendsResponseType,
   NotMyFriendsResponseType,
 } from '@repo/validation';
+import { ChatGateway } from '@/chat/chat.gateway';
 
 @Injectable()
 export class FriendService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   async findFriendRequests(userId: number) {
     const friendRequests = await this.prisma.friendRequest.findMany({
@@ -64,6 +68,9 @@ export class FriendService {
         receiverId: friendId,
       },
     });
+    this.chatGateway.server
+      .to(`user_${friendId}`)
+      .emit('new_friend_request', { senderId: userId });
     return newFriendRequest;
   }
 
@@ -96,12 +103,18 @@ export class FriendService {
   // todo - 친구 추가
   async acceptFriendRequest(userId: number, friendId: number) {
     await this.prisma.$transaction(async (transaction) => {
-      await transaction.friendRequest.delete({
+      await transaction.friendRequest.deleteMany({
         where: {
-          senderId_receiverId: {
-            senderId: friendId,
-            receiverId: userId,
-          },
+          OR: [
+            {
+              senderId: friendId,
+              receiverId: userId,
+            },
+            {
+              senderId: userId,
+              receiverId: friendId,
+            },
+          ],
         },
       });
       await transaction.friend.createMany({
@@ -117,6 +130,9 @@ export class FriendService {
           },
         ],
       });
+      this.chatGateway.server
+        .to(`user_${friendId}`)
+        .emit('friend_request_accepted', { accepterId: userId });
     });
   }
 
@@ -166,6 +182,7 @@ export class FriendService {
         AND: [
           { id: { not: userId } }, // 나 자신 제외
           { id: { notIn: myFriendIds } }, // 이미 친구인 사람 제외
+          { isPrivate: false }, // 비공개 계정 제외
         ],
       },
       select: {
@@ -250,12 +267,12 @@ export class FriendService {
 
   /** 친구 삭제 */
   async deleteFriend(myId: number, friendId: number) {
-    await this.prisma.friend.delete({
+    await this.prisma.friend.deleteMany({
       where: {
-        userId_friendId: {
-          userId: myId,
-          friendId: friendId,
-        },
+        OR: [
+          { userId: myId, friendId: friendId },
+          { userId: friendId, friendId: myId },
+        ],
       },
     });
     return { message: 'Friend deleted successfully.' };

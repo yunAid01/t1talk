@@ -14,8 +14,8 @@ import {
 } from '@/hooks/chatroom/useCreateChatroomMutation';
 
 // components
-import CreateChatroomModalHeader from './CreateChatroomModalHeader';
-import ChatroomModalFriendsList from './ChatroomModalFriendsList';
+import CreateChatroomModalHeader from '../../chatroom/CreateChatroomModalHeader';
+import ChatroomModalFriendsList from '../../chatroom/CreateChatroomModalFriendsList';
 
 export default function CreateChatroomModal() {
   const [selectedFriends, setSelectedFriends] = useState<number[]>([]);

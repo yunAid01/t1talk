@@ -71,6 +71,7 @@ export const useChat = (chatRoomId: number) => {
           );
         },
       );
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHAT_ROOMS.LIST });
     };
 
     socket.on('message_deleted', handleMessageDeleted);

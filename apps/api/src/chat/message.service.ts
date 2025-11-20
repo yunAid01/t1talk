@@ -74,7 +74,7 @@ export class MessageService {
       friends.map((friend) =>
         this.chatGateway.server
           .to(`user_${friend.friendId}`)
-          .emit('new_notification', message),
+          .emit('message_notification', message),
       );
 
       return message;

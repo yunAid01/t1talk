@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=installer /app .
 
 # Prisma 설치 및 마이그레이션 실행
-RUN npm install -g prisma
+RUN npm install -g prisma@6.1.0
 RUN prisma generate --schema=packages/db/prisma/schema.prisma
 
 # NestJS 실행 (main.js 경로 확인 필요: 보통 dist/main.js)

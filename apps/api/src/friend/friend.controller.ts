@@ -18,7 +18,6 @@ import { ZodResponse } from 'nestjs-zod';
 import {
   MyFriendsResponseDto,
   NotMyFriendsResponseDto,
-  CreateFriendResponseDto,
   FriendDetailsResponseDto,
 } from './dto/response-friends.dto';
 

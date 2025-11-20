@@ -12,9 +12,7 @@ export default function NotFound({
 }: NotFoundProps) {
   return (
     <div className={`flex flex-col items-center justify-center py-12 px-6`}>
-      {/* 아이콘 컨테이너 - T1 스타일 글로우 효과 */}
       <div className="relative mb-6">
-        {/* 배경 글로우 */}
         <div className="absolute -inset-4 bg-gradient-to-r from-red-600/20 to-red-800/20 rounded-full blur-xl"></div>
 
         {/* 아이콘 배경 */}

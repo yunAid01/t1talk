@@ -14,18 +14,16 @@ import Loading from '@/components/common/Loding';
 import Error from '@/components/common/Error';
 import OnlineIndicator from '@/components/common/OnlineIndicator';
 import Link from 'next/link';
-import UserDetailActionButton from '@/components/modal/user-modal/UserDetailButton';
+import UserDetailActionButton from '@/components/user/UserDetailButton';
 
 // hooks
 import { useCreateFavoriteMutation } from '@/hooks/friend/useCreateFavoriteMutation';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useDeleteFavoriteMutation } from '@/hooks/friend/useDeleteFavoriteMutation';
 import NotFound from '@/components/common/NotFound';
 import { IMAGE_URL } from '@/constants/imageUrl';
 
 export default function UserDetailModal() {
-  const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const { isUserOnline } = useSocket();
   const currentUser = useSelector(selectCurrentUser);

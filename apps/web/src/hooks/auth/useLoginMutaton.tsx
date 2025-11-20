@@ -18,12 +18,13 @@ export const useLoginMutation = () => {
         setCredentials({
           user: {
             ...data.user,
-            statusMessage: data.user.statusMessage ?? undefined,
-            profileImageUrl: data.user.profileImage ?? undefined,
             createdAt:
               typeof data.user.createdAt === 'string'
                 ? data.user.createdAt
                 : (data.user.createdAt?.toISOString?.() ?? ''),
+            statusMessage: data.user.statusMessage ?? null,
+            profileImageUrl: null,
+            backgroundImageUrl: null,
           },
           token: data.access_token,
         }),

@@ -6,27 +6,36 @@ import { closeModal } from '@/store/features/modalSlice';
 
 // Modal components
 // friends
-import DeleteFriendConfirmModal from './confirm-modal/DeleteFriendConfirmModal';
-import FriendRequestAcceptConfirmModal from './confirm-modal/FriendRequestAcceptConfirmModal';
-import DeleteBlockConfirmModal from './confirm-modal/DeleteBlockConfirmModal';
-import CreateBlockConfirmModal from './confirm-modal/CreateBlockConfirmModal';
+import DeleteFriendConfirmModal from './friend-modal/DeleteFriendConfirmModal';
+import FriendRequestAcceptConfirmModal from './friend-request-modal/FriendRequestAcceptConfirmModal';
+import DeleteBlockConfirmModal from './friend-modal/DeleteBlockConfirmModal';
+import CreateBlockConfirmModal from './friend-modal/CreateBlockConfirmModal';
+
+// auth
+import LogoutConfirmModal from './auth-modal/LogoutConfirmModal';
+
 // user
 import UserFindModal from './user-modal/UserFindModal';
 import UserDetailModal from './user-modal/UserDetailModal';
-import LogoutConfirmModal from './confirm-modal/LogoutConfirmModal';
+import UpdateUserConfirmModal from './auth-modal/UpdateUserConfirmModal';
+import DeleteUserConfirmModal from './auth-modal/DeleteUserConfirmModal';
+import UpdatePasswordConfirmModal from './auth-modal/UpdatePasswordConfirmModal';
+import NotMyUserDetailModal from './user-modal/NotMyUserDetailModal';
+
 // chatroom
 import CreateChatroomModal from './chatroom-modal/CreateChatroomModal';
-import DeleteChatRoomConfirmModal from './confirm-modal/DeleteChatRoomConfirmModal';
+import DeleteChatRoomConfirmModal from './chatroom-modal/DeleteChatRoomConfirmModal';
+
 // message
-import DeleteMessageConfirmModal from './confirm-modal/DeleteMessageConfirmModal';
+import DeleteMessageConfirmModal from './message-modal/DeleteMessageConfirmModal';
+
+// friend request
+import SendFriendRequestConfirmModal from './friend-request-modal/SendFriendRequestConfirmModal';
+import FindFriendRequestModal from './friend-request-modal/FindFriendRequestModal';
+import DeleteFriendRequestConfirmModal from './friend-request-modal/DeleteFriendRequestConfirmModal';
+
+// layout
 import ModalLayout from './ModalLayout';
-import UpdateUserConfirmModal from './confirm-modal/UpdateUserConfirmModal';
-import DeleteUserConfirmModal from './confirm-modal/DeleteUserConfirmModal';
-import UpdatePasswordConfirmModal from './confirm-modal/UpdatePasswordConfirmModal';
-import SendFriendRequestConfirmModal from './confirm-modal/SendFriendRequestConfirmModal';
-import FindFriendRequestModal from './friend-modal/FindFriendRequestModal';
-import DeleteFriendRequestConfirmModal from './confirm-modal/DeleteFriendRequestConfirmModal';
-import NotMyUserDetailModal from './user-modal/NotMyUserDetailModal';
 
 export default function GlobalModal() {
   const dispatch: AppDispatch = useDispatch();
